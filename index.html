@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bench Labs</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style>
+    /* Ensure clean typography and GPU rendering */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+    .hero-content {
+      position: relative;
+      z-index: 20;
+    }
+
+    /* ==========================================================================
+       ANIMATED VERTICAL HEADER LINES (section 2 / h2 blocks)
+       - base line draws itself in (scaleY) when scrolled into view
+       - a short dash travels down the line endlessly
+       ========================================================================== */
+    .vline-section .vline {
+      transform: scaleY(0);
+      transform-origin: top center;
+      opacity: 0;
+      transition:
+        transform 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 1.2s ease;
+    }
+    .vline-section.in-view .vline {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+    /* Respect reduced motion: just show the line statically */
+    @media (prefers-reduced-motion: reduce) {
+      .vline-section .vline {
+        transition: none;
+        transform: none;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 antialiased">
+
+  <!-- Shared gradient for the vertical lines (transparent at both tips) -->
+  <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="vlineFade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="white" stop-opacity="0" />
+        <stop offset="15%"  stop-color="white" stop-opacity="1" />
+        <stop offset="85%"  stop-color="white" stop-opacity="1" />
+        <stop offset="100%" stop-color="white" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- LANDING SECTION -->
+  <!-- HERO -->
+  <section id="hero" class="relative h-[40vh] overflow-hidden bg-zinc-950">
+    <!-- Animated Background Logo with SVG Outline Stroke Glow (No center glow) -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"
+      class="absolute left-1/2 top-1/2 w-[160vmax] h-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.26] pointer-events-none z-0">
+      <defs>
+        <!-- SVG filter that blurs only the stroke outline pixels, avoiding any geometrical center box glow -->
+        <filter id="outline-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.65" result="blur1" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.25" result="blur2" />
+          <feMerge>
+            <feMergeNode in="blur1" />
+            <feMergeNode in="blur2" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <path d="M54.43 72.25C54.04 72.25 53.52 72.18 53.25 72.5C52.77 73.04 52.82 79.52 53.29 79.96C55.2 81.78 60.19 78.95 60.2 82.42C60.21 83.5 60.52 87.44 59.85 88.09C58.94 88.98 54.96 87.96 53.6 88.37C52.82 88.61 52.76 94.66 52.99 95.58C53.56 97.81 59.68 95.2 60.16 97.42C60.64 99.67 60.21 102.45 60.21 104.75C60.21 109.86 60.21 114.97 60.21 120.08C60.21 121.55 59.75 125.48 60.26 126.66C60.44 127.08 61.02 127.16 61.42 127.21C62.9 127.41 66.46 127.79 67.59 126.67C68.63 125.64 68.06 122.26 68.05 120.92C68.04 115.43 68.19 109.89 68.02 104.42C67.99 103.18 67.53 97.23 68.45 96.69C69.09 96.31 70.21 96.48 70.92 96.5C75.84 96.61 74.63 97.75 74.57 102.08C74.52 105.86 74.58 109.64 74.58 113.42C74.58 114.43 74.16 116.81 74.79 117.63C75.3 118.29 79.64 118.1 80.58 118.02C82.55 117.84 81.93 115.42 81.94 113.92C81.96 109.75 81.88 105.58 81.84 101.42C81.83 100.28 81.29 96.86 82.82 96.58C85.66 96.08 88.88 96.48 91.75 96.48C97.69 96.48 103.64 96.49 109.58 96.49C111.14 96.49 117.64 96.01 118.6 96.82C119.3 97.41 118.97 101.23 118.97 102.25C118.96 106.03 118.88 109.8 118.9 113.58C118.91 114.56 118.51 116.94 119.2 117.72C119.63 118.22 124.39 118.12 125.25 118.03C126.93 117.84 126.2 113.69 126.2 112.42C126.22 108.75 126.2 105.08 126.2 101.42C126.2 100.31 125.75 98.06 126.36 97.11C126.94 96.23 131.46 96.28 132.39 96.7C133.33 97.13 132.88 101.84 132.86 102.92C132.79 106.7 133.07 110.47 133.03 114.25C133 116.97 132.73 119.7 132.74 122.42C132.74 123.53 132.54 125.72 133.27 126.64C133.92 127.45 140.01 127.52 140.55 126.64C141.04 125.86 140.61 120.2 140.61 118.92C140.61 113.92 140.61 108.92 140.61 103.92C140.61 101.91 140.26 99.56 140.61 97.58C141.04 95.12 147.33 97.76 147.8 95.57C148.02 94.51 148.08 88.75 147.14 88.43C145.8 87.98 141.91 89 141.11 88.31C139.92 87.28 140.58 83.69 140.6 82.25C140.64 79.28 144.88 81.35 146.64 80.55C148.48 79.71 147.83 77.12 147.82 75.42C147.82 74.65 148.09 73.17 147.55 72.52C147.11 71.98 142.67 72.25 141.75 72.25C136.03 72.25 130.31 72.25 124.58 72.25C101.21 72.25 77.8 71.9 54.43 72.25ZM68.61 80.73C69.91 80.43 71.58 80.69 72.92 80.69C76.42 80.69 79.92 80.68 83.42 80.68C93.97 80.68 104.53 80.67 115.08 80.67C119.08 80.67 123.08 80.67 127.08 80.67C128.61 80.67 130.97 80.23 132.39 80.87C133.12 81.2 133.01 86.49 132.87 87.42C132.66 88.78 130.2 88.34 129.25 88.34C125.47 88.34 121.69 88.35 117.92 88.35C106.58 88.35 95.25 88.35 83.92 88.35C80.36 88.35 76.81 88.31 73.25 88.31C71.84 88.31 70 88.74 68.64 88.42C67.64 88.18 67.49 80.99 68.61 80.73Z"
+        fill="none" stroke="white" stroke-width="0.4" stroke-linejoin="round" pathLength="1000"
+        stroke-dasharray="500 500" stroke-dashoffset="0" filter="url(#outline-glow)">
+        <animate attributeName="stroke-dashoffset" from="0" to="1000" dur="10s" repeatCount="indefinite" />
+      </path>
+    </svg>
+
+    <!-- WebGPU WGSL Homogenous Grain Canvas -->
+    <canvas id="hero-grain-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+    <!-- Content -->
+    <div class="relative z-20 flex h-full items-center justify-center px-6 hero-content">
+      <div class="text-center">
+        <!-- Crisp, bold, high-contrast header -->
+        <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-zinc-100">
+          Bench Labs
+        </h1>
+        <!-- Softer, normal-weight paragraph with distinct perceptual separation -->
+        <p class="mt-4 text-base md:text-lg font-normal tracking-normal text-zinc-400">
+          Exploring artificial intelligence together.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT SECTION -->
+  <section class="bg-zinc-900 py-24">
+    <div class="mx-auto max-w-4xl space-y-20 px-8">
+
+      <!-- ================================================================
+           ABOUT  — vertical animated line next to the h2 block
+           ================================================================ -->
+      <section class="vline-section relative pl-10">
+        <!-- Vertical line: faint gradient track + traveling dash (with soft glow layer) -->
+        <svg class="vline absolute left-0 top-0 h-full w-[6px] overflow-visible"
+             viewBox="0 0 6 100" preserveAspectRatio="none" aria-hidden="true">
+          <!-- faint static track, transparent at the tips -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="url(#vlineFade)" stroke-width="1" vector-effect="non-scaling-stroke"
+                opacity="0.16" />
+          <!-- soft glow copy of the traveling dash -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="4" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.10"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.6s" begin="-0.8s" repeatCount="indefinite" />
+          </line>
+          <!-- crisp core of the traveling dash -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="1.5" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.45"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.6s" begin="-0.8s" repeatCount="indefinite" />
+          </line>
+        </svg>
+        <h2 class="mb-4 text-3xl font-bold tracking-tight text-zinc-100">About Us</h2>
+        <p class="leading-8 font-normal tracking-normal text-zinc-400">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus suscipit, aliquet odio a, interdum velit. Curabitur a elit non libero imperdiet tincidunt. Integer nec augue nec risus tempor ultricies. Proin vitae ligula at neque tincidunt volutpat.
+        </p>
+      </section>
+
+      <!-- ================================================================
+           SERVICES — vertical animated line next to the h2 block
+           ================================================================ -->
+      <section class="vline-section relative pl-10">
+        <svg class="vline absolute left-0 top-0 h-full w-[6px] overflow-visible"
+             viewBox="0 0 6 100" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="url(#vlineFade)" stroke-width="1" vector-effect="non-scaling-stroke"
+                opacity="0.16" />
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="4" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.10"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="4.2s" begin="-2.1s" repeatCount="indefinite" />
+          </line>
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="1.5" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.45"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="4.2s" begin="-2.1s" repeatCount="indefinite" />
+          </line>
+        </svg>
+        <h2 class="mb-4 text-3xl font-bold tracking-tight text-zinc-100">Our Services</h2>
+        <p class="leading-8 font-normal tracking-normal text-zinc-400">
+          Praesent euismod, orci a aliquet aliquet, odio massa varius dui, quis pharetra elit erat a lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Suspendisse potenti. Donec at libero sit amet lorem tristique eleifend.
+        </p>
+      </section>
+
+      <!-- ================================================================
+           CONTACT — vertical animated line next to the h2 block
+           ================================================================ -->
+      <section class="vline-section relative pl-10">
+        <svg class="vline absolute left-0 top-0 h-full w-[6px] overflow-visible"
+             viewBox="0 0 6 100" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="url(#vlineFade)" stroke-width="1" vector-effect="non-scaling-stroke"
+                opacity="0.16" />
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="4" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.10"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.2s" begin="-1.4s" repeatCount="indefinite" />
+          </line>
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="1.5" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.45"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.2s" begin="-1.4s" repeatCount="indefinite" />
+          </line>
+        </svg>
+        <h2 class="mb-4 text-3xl font-bold tracking-tight text-zinc-100">Contact</h2>
+        <p class="leading-8 font-normal tracking-normal text-zinc-400">
+          Phasellus euismod, elit non commodo bibendum, massa justo aliquet dolor, a gravida purus odio sit amet elit. Maecenas aliquet, odio ac pellentesque luctus, odio erat interdum ligula, eu aliquet enim sapien nec odio. Etiam vitae ligula id odio faucibus aliquet.
+        </p>
+      </section>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SCROLL REVEAL FOR THE VERTICAL HEADER LINES                              -->
+  <!-- ========================================================================= -->
+  <script>
+    (function () {
+      const sections = document.querySelectorAll('.vline-section');
+      if (!('IntersectionObserver' in window)) {
+        sections.forEach(s => s.classList.add('in-view'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.25 });
+      sections.forEach(s => io.observe(s));
+    })();
+  </script>
+
+  <!-- ========================================================================= -->
+  <!-- WEBGPU WGSL HOMOGENOUS FILM GRAIN SHADER (NON-GRADIENT, 0.32 INTENSITY)   -->
+  <!-- ========================================================================= -->
+  <script>
+    (function () {
+      const canvas = document.getElementById('hero-grain-canvas');
+      const heroSection = document.getElementById('hero');
+
+      // Exactly 0.32 intensity for crisp, balanced, homogenous film grain
+      const GRAIN_INTENSITY = 0.40;
+
+      // DPI-aware Canvas Resize
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = heroSection.getBoundingClientRect();
+        const width = Math.max(1, Math.floor(rect.width * dpr));
+        const height = Math.max(1, Math.floor(rect.height * dpr));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        return { width, height };
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      // =====================================================================
+      // 1. WEBGPU WGSL HOMOGENOUS SHADER
+      // =====================================================================
+      const wgslShaderCode = `
+      struct VertexOutput {
+        @builtin(position) position : vec4<f32>,
+        @location(0) uv : vec2<f32>,
+      };
+
+      @vertex
+      fn vs_main(@builtin(vertex_index) VertexIndex : u32) -> VertexOutput {
+        var pos = array<vec2<f32>, 6>(
+          vec2<f32>(-1.0, -1.0),
+          vec2<f32>( 1.0, -1.0),
+          vec2<f32>(-1.0,  1.0),
+          vec2<f32>(-1.0,  1.0),
+          vec2<f32>( 1.0, -1.0),
+          vec2<f32>( 1.0,  1.0)
+        );
+        var output : VertexOutput;
+        output.position = vec4<f32>(pos[VertexIndex], 0.0, 1.0);
+        output.uv = pos[VertexIndex] * vec2<f32>(0.5, -0.5) + vec2<f32>(0.5, 0.5);
+        return output;
+      }
+
+      struct Uniforms {
+        time : f32,
+        width : f32,
+        height : f32,
+        intensity : f32,
+      };
+
+      @group(0) @binding(0) var<uniform> u : Uniforms;
+
+      // High-precision pseudo-random hash for sharp procedural noise
+      fn hash12(p: vec2<f32>) -> f32 {
+        var p3 = fract(p.xyx * 0.1031);
+        var d = dot(p3, p3.yzx + vec3<f32>(33.33, 33.33, 33.33));
+        p3 = p3 + vec3<f32>(d, d, d);
+        return fract((p3.x + p3.y) * p3.z);
+      }
+
+      // Interleaved Gradient Noise for organic film grain texture
+      fn ign(p: vec2<f32>) -> f32 {
+        var magic = vec3<f32>(0.06711056, 0.00583715, 52.9829189);
+        return fract(magic.z * fract(dot(p, magic.xy)));
+      }
+
+      @fragment
+      fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
+        var pixel_coord = uv * vec2<f32>(u.width, u.height);
+        
+        // Time seed changes every frame -> true dynamic procedural noise without static drift
+        var time_seed = u.time * 41.37;
+        var seed = pixel_coord + vec2<f32>(time_seed  *113.1, time_seed*  79.3);
+        
+        // Multi-frequency noise combination
+        var g1 = hash12(seed);
+        var g2 = ign(seed + vec2<f32>(19.3, 47.7));
+        var raw_grain = mix(g1, g2, 0.5);
+        
+        // Strictly HOMOGENOUS film grain distribution (NO gradient, NO vignette, NO spotlight)
+        var film_grain = pow(raw_grain, 1.25);
+        var brightness = film_grain * u.intensity;
+        
+        // Uniform monochrome white specks across all coordinates
+        var color = vec3<f32>(brightness, brightness, brightness);
+        
+        // Homogenous alpha blending over hero section background
+        var alpha = clamp(brightness * 1.5, 0.0, 0.85);
+        
+        return vec4<f32>(color, alpha);
+      }
+      `;
+
+      async function initWebGPU() {
+        if (!navigator.gpu) {
+          throw new Error('WebGPU not supported in this browser.');
+        }
+
+        const adapter = await navigator.gpu.requestAdapter();
+        if (!adapter) {
+          throw new Error('No appropriate GPUAdapter found.');
+        }
+
+        const device = await adapter.requestDevice();
+        const context = canvas.getContext('webgpu');
+        const format = navigator.gpu.getPreferredCanvasFormat();
+        context.configure({
+          device: device,
+          format: format,
+          alphaMode: 'premultiplied',
+        });
+
+        // 16-byte Uniform Buffer (4 x f32)
+        const uniformBuffer = device.createBuffer({
+          size: 16,
+          usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const bindGroupLayout = device.createBindGroupLayout({
+          entries: [
+            {
+              binding: 0,
+              visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
+              buffer: { type: 'uniform' },
+            },
+          ],
+        });
+
+        const bindGroup = device.createBindGroup({
+          layout: bindGroupLayout,
+          entries: [
+            {
+              binding: 0,
+              resource: { buffer: uniformBuffer },
+            },
+          ],
+        });
+
+        const shaderModule = device.createShaderModule({
+          code: wgslShaderCode,
+        });
+
+        const pipelineLayout = device.createPipelineLayout({
+          bindGroupLayouts: [bindGroupLayout],
+        });
+
+        const pipeline = device.createRenderPipeline({
+          layout: pipelineLayout,
+          vertex: {
+            module: shaderModule,
+            entryPoint: 'vs_main',
+          },
+          fragment: {
+            module: shaderModule,
+            entryPoint: 'fs_main',
+            targets: [
+              {
+                format: format,
+                blend: {
+                  color: {
+                    srcFactor: 'src-alpha',
+                    dstFactor: 'one-minus-src-alpha',
+                    operation: 'add',
+                  },
+                  alpha: {
+                    srcFactor: 'one',
+                    dstFactor: 'one-minus-src-alpha',
+                    operation: 'add',
+                  },
+                },
+              },
+            ],
+          },
+          primitive: {
+            topology: 'triangle-list',
+          },
+        });
+
+        let startTime = performance.now();
+
+        function render(now) {
+          resizeCanvas();
+
+          const timeInSeconds = (now - startTime) * 0.001;
+
+          // Populate Uniform Array (16 bytes)
+          const uniformData = new Float32Array([
+            timeInSeconds,        // 0: time
+            canvas.width,         // 1: width
+            canvas.height,        // 2: height
+            GRAIN_INTENSITY,      // 3: intensity
+          ]);
+
+          device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+
+          const commandEncoder = device.createCommandEncoder();
+          const textureView = context.getCurrentTexture().createView();
+
+          const renderPass = commandEncoder.beginRenderPass({
+            colorAttachments: [
+              {
+                view: textureView,
+                clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 0.0 }, // Transparent base so background SVG shows through
+                loadOp: 'clear',
+                storeOp: 'store',
+              },
+            ],
+          });
+
+          renderPass.setPipeline(pipeline);
+          renderPass.setBindGroup(0, bindGroup);
+          renderPass.draw(6, 1, 0, 0);
+          renderPass.end();
+
+          device.queue.submit([commandEncoder.finish()]);
+
+          requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+      }
+
+      // =====================================================================
+      // 2. WEBGL2 FALLBACK (Homogenous, non-gradient, 0.32 intensity)
+      // =====================================================================
+      function initWebGL2() {
+        const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true });
+        if (!gl) {
+          return;
+        }
+
+        const vsSource = `#version 300 es
+          precision highp float;
+          out vec2 v_uv;
+          void main() {
+            vec2 pos[6] = vec2[](
+              vec2(-1.0, -1.0),
+              vec2( 1.0, -1.0),
+              vec2(-1.0,  1.0),
+              vec2(-1.0,  1.0),
+              vec2( 1.0, -1.0),
+              vec2( 1.0,  1.0)
+            );
+            gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0);
+            v_uv = pos[gl_VertexID] * vec2(0.5, -0.5) + vec2(0.5, 0.5);
+          }
+        `;
+
+        const fsSource = `#version 300 es
+          precision highp float;
+          in vec2 v_uv;
+          out vec4 outColor;
+
+          uniform float u_time;
+          uniform float u_width;
+          uniform float u_height;
+          uniform float u_intensity;
+
+          float hash12(vec2 p) {
+            vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+            p3 += dot(p3, p3.yzx + 33.33);
+            return fract((p3.x + p3.y) * p3.z);
+          }
+
+          float ign(vec2 p) {
+            vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
+            return fract(magic.z * fract(dot(p, magic.xy)));
+          }
+
+          void main() {
+            vec2 pixel_coord = v_uv * vec2(u_width, u_height);
+            float time_seed = u_time * 41.37;
+            vec2 seed = pixel_coord + vec2(time_seed  *113.1, time_seed*  79.3);
+            float g1 = hash12(seed);
+            float g2 = ign(seed + vec2(19.3, 47.7));
+            float raw_grain = mix(g1, g2, 0.5);
+            float film_grain = pow(raw_grain, 1.25);
+            float brightness = film_grain * u_intensity;
+            vec3 color = vec3(brightness);
+            float alpha = clamp(brightness * 1.5, 0.0, 0.85);
+            outColor = vec4(color, alpha);
+          }
+        `;
+
+        function compileShader(src, type) {
+          const s = gl.createShader(type);
+          gl.shaderSource(s, src);
+          gl.compileShader(s);
+          if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+            gl.deleteShader(s);
+            return null;
+          }
+          return s;
+        }
+
+        const vs = compileShader(vsSource, gl.VERTEX_SHADER);
+        const fs = compileShader(fsSource, gl.FRAGMENT_SHADER);
+
+        const program = gl.createProgram();
+        gl.attachShader(program, vs);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const uTime = gl.getUniformLocation(program, 'u_time');
+        const uWidth = gl.getUniformLocation(program, 'u_width');
+        const uHeight = gl.getUniformLocation(program, 'u_height');
+        const uIntensity = gl.getUniformLocation(program, 'u_intensity');
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+        let startTime = performance.now();
+
+        function renderWebGL(now) {
+          resizeCanvas();
+          gl.viewport(0, 0, canvas.width, canvas.height);
+          gl.clearColor(0, 0, 0, 0);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+
+          const timeInSeconds = (now - startTime) * 0.001;
+
+          gl.uniform1f(uTime, timeInSeconds);
+          gl.uniform1f(uWidth, canvas.width);
+          gl.uniform1f(uHeight, canvas.height);
+          gl.uniform1f(uIntensity, GRAIN_INTENSITY);
+
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+          requestAnimationFrame(renderWebGL);
+        }
+
+        requestAnimationFrame(renderWebGL);
+      }
+
+      // Initialize WebGPU with seamless fallback to WebGL2
+      initWebGPU().catch(() => {
+        initWebGL2();
+      });
+    })();
+  </script>
+</body>
+</html>
