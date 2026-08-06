@@ -9,21 +9,23 @@
   const isModels = pathname.includes('models.html') || pathname.includes('text-to-image.html') || pathname.includes('text-to-3d.html');
   const isBenchmarks = pathname.includes('benchmarks.html');
   const isPartnerships = pathname.includes('partnerships.html');
+  const isLetsPartner = pathname.includes('lets-partner.html');
 
   const navItems = [
     { name: 'Home', url: isHome ? '#hero' : 'index.html', active: isHome && !pathname.includes('partnerships') && !pathname.includes('benchmarks') },
     { name: 'Models', url: 'models.html', active: isModels },
     { name: 'Benchmarks', url: 'benchmarks.html', active: isBenchmarks },
     { name: 'Partnerships', url: 'partnerships.html', active: isPartnerships },
+    { name: "Let's Partner", url: 'lets-partner.html', active: isLetsPartner },
     { name: 'Discord', url: 'https://discord.gg/zRzbNJBVQQ', external: true }
   ];
 
   // Render Header
   const headerHTML = `
-    <header class="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
+    <header class="ui-header sticky top-0 z-50 w-full border-b backdrop-blur-md">
       <div class="mx-auto flex max-w-6xl h-16 items-center justify-between px-6">
         <a href="${isHome ? '#hero' : 'index.html'}" class="flex items-center gap-2.5 group">
-          <img src="static/logo-benchlabs.png" alt="Bench Labs Logo" class="h-8 w-8 object-contain transition-transform group-hover:scale-105" onerror="this.src='https://huggingface.co/front/assets/huggingface_logo-noborder.svg'">
+          <span class="ui-brand-mark"><img src="static/logo-benchlabs.png" alt="" class="h-6 w-6 object-contain transition-transform group-hover:scale-105" onerror="this.src='https://huggingface.co/front/assets/huggingface_logo-noborder.svg'"></span>
           <span class="text-lg font-bold tracking-tight text-zinc-100 group-hover:text-white transition-colors">Bench Labs</span>
         </a>
 
@@ -32,7 +34,8 @@
           ${navItems.map(item => `
             <a href="${item.url}"
                ${item.external ? 'target="_blank" rel="noopener"' : ''}
-               class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200
+               data-active="${item.active}"
+               class="ui-nav-link px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200
                ${item.active
                  ? 'bg-zinc-800 text-zinc-100 shadow-sm'
                  : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/50'}"
@@ -44,7 +47,7 @@
         </nav>
 
         <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn" type="button" class="md:hidden flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 focus:outline-none" aria-label="Toggle menu">
+        <button id="mobile-menu-btn" type="button" class="md:hidden flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 focus:outline-none" aria-label="Toggle menu" aria-expanded="false">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path id="menu-icon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -52,7 +55,7 @@
       </div>
 
       <!-- Mobile Menu Panel -->
-      <div id="mobile-menu" class="hidden md:hidden border-b border-zinc-800/60 bg-zinc-950/95 backdrop-blur-lg px-6 py-4 space-y-2">
+      <div id="mobile-menu" class="ui-menu-panel hidden md:hidden border-b border-zinc-800/60 bg-zinc-950/95 backdrop-blur-lg px-6 py-4 space-y-2">
         ${navItems.map(item => `
           <a href="${item.url}"
              ${item.external ? 'target="_blank" rel="noopener"' : ''}
@@ -107,6 +110,7 @@
     let isOpen = false;
     mobileMenuBtn.addEventListener('click', () => {
       isOpen = !isOpen;
+      mobileMenuBtn.setAttribute('aria-expanded', String(isOpen));
       if (isOpen) {
         mobileMenu.classList.remove('hidden');
         menuIconPath.setAttribute('d', 'M6 18L18 6M6 6l12 12'); // X icon

@@ -54,6 +54,7 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="static/ui.css">
 </head>
 <body class="bg-zinc-950 text-zinc-100 antialiased min-h-screen flex flex-col">
 
@@ -101,9 +102,10 @@
     <div class="relative z-20 flex h-full items-center justify-center px-6 hero-content">
       <div class="text-center">
         <!-- Crisp, bold, high-contrast header -->
-        <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-zinc-100">
-          Bench Labs
-        </h1>
+        <svg class="stroke-text" data-stroke-text data-draw-duration="3.0" data-fill-delay="0.35" data-stagger="0.05" data-ease="power2.out" role="img" aria-label="Bench Labs" viewBox="0 0 900 160" preserveAspectRatio="xMidYMid meet">
+          <text class="stroke-text__outline" x="450" y="112">Bench Labs</text>
+          <text class="stroke-text__fill" x="450" y="112">Bench Labs</text>
+        </svg>
         <!-- Softer, normal-weight paragraph with distinct perceptual separation -->
         <p class="mt-4 text-base md:text-lg font-normal tracking-normal text-zinc-400">
           Exploring artificial intelligence together.
@@ -151,10 +153,7 @@
         </svg>
         <h2 class="mb-4 text-3xl font-bold tracking-tight text-zinc-100">About Us</h2>
         <p class="leading-8 font-normal tracking-normal text-zinc-400">
-          Bench Labs is an open-source collective exploring artificial intelligence together. We design and publish tiny, efficient generative models — from text-to-image diffusion to text-to-3D — alongside lightweight reasoning benchmarks, and share everything openly on Hugging Face. Everything we release is open weights under permissive licenses (MIT / Apache-2.0).
-        </p>
-        <p class="mt-4 leading-8 font-normal tracking-normal text-zinc-400">
-          Latest release: <span class="text-zinc-200">PixelModel v6</span> — our 0.2B parameter multi-modal diffusion transformer for text-to-image generation, representing our most advanced architecture yet.
+          Bench Labs is a nonprofit, open-source community exploring artificial intelligence with contributors and partner organizations. We build and share compact generative models, practical research tools, and lightweight benchmarks in the open, with a focus on accessible technology and permissive licensing.
         </p>
       </section>
 
@@ -184,14 +183,12 @@
         <p class="leading-8 font-normal tracking-normal text-zinc-400">
           We actively collaborate with open-source collectives and teams that share our vision for permissively-licensed, compact, and highly-efficient artificial intelligence.
         </p>
-        <p class="mt-2 leading-8 font-normal tracking-normal text-zinc-400">
-          Our valued partners include <span class="text-zinc-200 font-medium">AtomixLabs</span>, <span class="text-zinc-200 font-medium">FWKV</span>, <span class="text-zinc-200 font-medium">FromZero</span>, <span class="text-zinc-200 font-medium">İvmeLabs</span>, <span class="text-zinc-200 font-medium">Simplicity</span>, and <span class="text-zinc-200 font-medium">Complexity ML</span>.
-        </p>
         <div class="mt-6 flex flex-wrap gap-4">
-          <a href="partnerships.html" class="inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm font-semibold text-zinc-100 px-5 py-2.5 transition-colors shadow-sm">
+          <a href="partnerships.html" class="ui-button ui-button-outline inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm font-semibold text-zinc-100 px-5 py-2.5 transition-colors shadow-sm">
             View Partner Details &amp; Logos
             <span class="text-zinc-500">→</span>
           </a>
+          <a href="lets-partner.html" class="ui-button ui-button-primary inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold">Why partner with us <span aria-hidden="true">→</span></a>
         </div>
       </section>
 
@@ -200,6 +197,7 @@
 
   <!-- Navigation JS -->
   <script src="static/navigation.js"></script>
+  <script src="static/stroke-text.js"></script>
 
   <!-- ========================================================================= -->
   <!-- SCROLL REVEAL FOR THE VERTICAL HEADER LINES                              -->

@@ -10,6 +10,7 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
   </style>
+  <link rel="stylesheet" href="static/ui.css">
 </head>
 <body class="bg-zinc-950 text-zinc-100 antialiased min-h-screen flex flex-col">
 
@@ -24,7 +25,9 @@
     </div>
 
     <!-- Partners Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="partnership-carousel" data-carousel aria-label="Bench Labs partnerships">
+      <div class="partnership-carousel__viewport">
+        <div class="partnership-carousel__track">
 
       <!-- AtomixLabs -->
       <div class="group relative flex flex-col justify-between rounded-2xl border border-zinc-850 bg-zinc-900/10 p-6 transition-all duration-300 hover:border-zinc-700 hover:bg-zinc-900/30">
@@ -60,7 +63,7 @@
         <p class="text-xs leading-relaxed text-zinc-400 mb-6">
           Feed-forward Weighted Key Value. Working on groundbreaking structural improvements and highly optimized recurrent neural networks and transformer backbones.
         </p>
-        <a href="https://huggingface.co/FWKV" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-300 group-hover:text-white mt-auto">
+        <a href="https://fwkv.github.io/" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-300 group-hover:text-white mt-auto">
           Visit Hugging Face
           <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
         </a>
@@ -120,7 +123,7 @@
         <p class="text-xs leading-relaxed text-zinc-400 mb-6">
           "Simplicity without complexity" — building clean, simple, easy-to-run pipelines for deployment of deep generative models on consumer-grade micro-hardware.
         </p>
-        <a href="https://huggingface.co/bench-labs" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-300 group-hover:text-white mt-auto">
+        <a href="https://simplicity-india.com/" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-300 group-hover:text-white mt-auto">
           Visit Hugging Face
           <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
         </a>
@@ -140,16 +143,24 @@
         <p class="text-xs leading-relaxed text-zinc-400 mb-6">
           Developing highly "inspectable transformer systems", specialized tools for interpretability, visualizing attention matrices, and understanding small networks.
         </p>
-        <a href="https://huggingface.co/bench-labs" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-300 group-hover:text-white mt-auto">
+        <a href="https://www.complexity-ai.fr/" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-300 group-hover:text-white mt-auto">
           Visit Hugging Face
           <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
         </a>
       </div>
 
+        </div>
+      </div>
+      <div class="partnership-carousel__controls">
+        <button class="ui-button ui-button-outline partnership-carousel__button" type="button" data-carousel-prev aria-label="Previous partners">← <span>Previous</span></button>
+        <div class="partnership-carousel__dots" data-carousel-dots role="tablist" aria-label="Partner pages"></div>
+        <button class="ui-button ui-button-outline partnership-carousel__button" type="button" data-carousel-next aria-label="Next partners"><span>Next</span> →</button>
+      </div>
     </div>
   </main>
 
   <!-- Navigation JS -->
   <script src="static/navigation.js"></script>
+  <script src="static/partnership-carousel.js"></script>
 </body>
 </html>
