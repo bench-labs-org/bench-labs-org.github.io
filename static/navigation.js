@@ -25,7 +25,7 @@
     <header class="ui-header sticky top-0 z-50 w-full border-b backdrop-blur-md">
       <div class="mx-auto flex max-w-6xl h-16 items-center justify-between px-6">
         <a href="${isHome ? '#hero' : 'index.html'}" class="flex items-center gap-2.5 group">
-          <span class="ui-brand-mark"><img src="static/logo-benchlabs.png" alt="" class="h-6 w-6 object-contain transition-transform group-hover:scale-105" onerror="this.src='https://huggingface.co/front/assets/huggingface_logo-noborder.svg'"></span>
+          <span class="ui-brand-mark"><img src="static/logo-benchlabs.png" alt="" class="h-full w-full object-contain p-1 transition-transform group-hover:scale-105" onerror="this.src='https://huggingface.co/front/assets/huggingface_logo-noborder.svg'"></span>
           <span class="text-lg font-bold tracking-tight text-zinc-100 group-hover:text-white transition-colors">Bench Labs</span>
         </a>
 
