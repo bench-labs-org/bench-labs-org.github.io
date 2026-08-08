@@ -1,25 +1,40 @@
+@theme {
+  --color-zinc-950: #171717;
+  --color-zinc-900: #1d1d1d;
+  --color-zinc-850: #222222;
+  --color-zinc-800: #262626;
+  --color-zinc-700: #333333;
+}
+
 :root {
-  --background: 240 10% 3.9%; --foreground: 0 0% 98%; --card: 240 10% 3.9%;
-  --primary: 0 0% 98%; --primary-foreground: 240 5.9% 10%; --secondary: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%; --border: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%; --radius: .75rem;
+  --background: 0 0% 9%; /* #171717 */
+  --foreground: 0 0% 98%;
+  --card: 0 0% 11.4%; /* #1d1d1d */
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 15%; /* #262626 */
+  --muted-foreground: 0 0% 63.9%;
+  --border: 0 0% 18%; /* #2e2e2e */
+  --ring: 0 0% 83.9%;
+  --radius: .75rem;
 }
 * { border-color: hsl(var(--border)); }
 html { scroll-behavior: smooth; }
-body { background: hsl(var(--background)); color: hsl(var(--foreground)); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+body { background: #171717 !important; color: hsl(var(--foreground)); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 a, button { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
-.ui-header { background: hsl(var(--background) / .78); border-color: hsl(var(--border) / .8); }
+.ui-header { background: #171717cc !important; border-color: hsl(var(--border) / .8); }
 .ui-brand-mark { display: grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid hsl(var(--border)); border-radius: .65rem; background: linear-gradient(145deg, hsl(var(--secondary)), hsl(var(--background))); box-shadow: 0 0 0 4px hsl(var(--foreground) / .03); }
 .ui-nav-link { position: relative; }
 .ui-nav-link[data-active="true"]::after { content: ""; position: absolute; left: 50%; bottom: .25rem; width: .25rem; height: .25rem; border-radius: 999px; background: hsl(var(--foreground)); transform: translateX(-50%); }
 .ui-menu-panel { box-shadow: 0 16px 40px hsl(0 0% 0% / .2); }
 .ui-eyebrow { color: hsl(var(--muted-foreground)); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-.ui-card { border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--card) / .62); box-shadow: 0 1px 2px hsl(0 0% 0% / .14), inset 0 1px hsl(var(--foreground) / .025); transition: border-color .2s ease, background-color .2s ease, transform .2s ease, box-shadow .2s ease; }
-.ui-card:hover { border-color: hsl(var(--foreground) / .22); background: hsl(var(--card) / .9); box-shadow: 0 16px 36px hsl(0 0% 0% / .16), inset 0 1px hsl(var(--foreground) / .04); }
+.ui-card { border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: #1d1d1d !important; box-shadow: 0 1px 2px hsl(0 0% 0% / .14), inset 0 1px hsl(var(--foreground) / .025); transition: border-color .2s ease, background-color .2s ease, transform .2s ease, box-shadow .2s ease; }
+.ui-card:hover { border-color: hsl(var(--foreground) / .22); background: #242424 !important; box-shadow: 0 16px 36px hsl(0 0% 0% / .16), inset 0 1px hsl(var(--foreground) / .04); }
 .ui-card-interactive:hover { transform: translateY(-3px); }
 .ui-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.5rem; border: 1px solid transparent; border-radius: .6rem; padding: .625rem 1rem; font-size: .875rem; font-weight: 600; line-height: 1; transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
 .ui-button:hover { transform: translateY(-1px); }
-.ui-button-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+.ui-button-primary { background: hsl(var(--primary)); color: #171717 !important; }
 .ui-button-primary:hover { background: hsl(var(--primary) / .88); }
 .ui-button-outline { border-color: hsl(var(--border)); background: hsl(var(--background) / .35); color: hsl(var(--foreground)); }
 .ui-button-outline:hover { background: hsl(var(--secondary)); border-color: hsl(var(--foreground) / .2); }
