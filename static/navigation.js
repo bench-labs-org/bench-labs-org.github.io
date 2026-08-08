@@ -10,14 +10,14 @@
   const isBenchmarks = pathname.includes('benchmarks.html');
   const isPartnerships = pathname.includes('partnerships.html');
   const isLetsPartner = pathname.includes('lets-partner.html');
-  const isSlopfinder = pathname.includes('slopfinder.html');
+  const isSlopfinder = pathname.includes('slopfinder.html') || (isHome && window.location.hash === '#slopfinder');
 
   const navItems = [
-    { name: 'Home', url: isHome ? '#hero' : 'index.html', active: isHome && !pathname.includes('partnerships') && !pathname.includes('benchmarks') && !pathname.includes('slopfinder') },
+    { name: 'Home', url: isHome ? '#hero' : 'index.html', active: isHome && !pathname.includes('partnerships') && !pathname.includes('benchmarks') && !isSlopfinder },
     { name: 'Models', url: 'models.html', active: isModels },
     { name: 'Benchmarks', url: 'benchmarks.html', active: isBenchmarks },
     { name: 'Partnerships', url: 'partnerships.html', active: isPartnerships },
-    { name: 'Slopfinder', url: 'slopfinder.html', active: isSlopfinder },
+    { name: 'Slopfinder', url: isHome ? '#slopfinder' : 'index.html#slopfinder', active: isSlopfinder },
     { name: "Let's Partner", url: 'lets-partner.html', active: isLetsPartner },
     { name: 'Discord', url: 'https://discord.gg/zRzbNJBVQQ', external: true }
   ];
@@ -120,6 +120,45 @@
         mobileMenu.classList.add('hidden');
         menuIconPath.setAttribute('d', 'M4 6h16M4 12h16M4 18h16'); // Hamburger icon
       }
+    });
+  }
+
+  // Handle dynamic active state changes on hashchange for Home page anchors
+  if (isHome) {
+    window.addEventListener('hashchange', () => {
+      const currentHash = window.location.hash || '#hero';
+      const desktopLinks = document.querySelectorAll('.ui-nav-link');
+      const mobileLinks = document.querySelectorAll('#mobile-menu a');
+
+      function updateActiveClasses(links, isMobileLayout) {
+        links.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href === '#hero' || href === '#slopfinder') {
+            const isActive = (href === currentHash) || (href === '#hero' && currentHash === '');
+            link.setAttribute('data-active', String(isActive));
+            if (isMobileLayout) {
+              if (isActive) {
+                link.classList.add('bg-zinc-800', 'text-zinc-100');
+                link.classList.remove('text-zinc-400', 'hover:text-zinc-100', 'hover:bg-zinc-900');
+              } else {
+                link.classList.remove('bg-zinc-800', 'text-zinc-100');
+                link.classList.add('text-zinc-400', 'hover:text-zinc-100', 'hover:bg-zinc-900');
+              }
+            } else {
+              if (isActive) {
+                link.classList.add('bg-zinc-800', 'text-zinc-100', 'shadow-sm');
+                link.classList.remove('text-zinc-400', 'hover:text-zinc-100', 'hover:bg-zinc-900/50');
+              } else {
+                link.classList.remove('bg-zinc-800', 'text-zinc-100', 'shadow-sm');
+                link.classList.add('text-zinc-400', 'hover:text-zinc-100', 'hover:bg-zinc-900/50');
+              }
+            }
+          }
+        });
+      }
+
+      updateActiveClasses(desktopLinks, false);
+      updateActiveClasses(mobileLinks, true);
     });
   }
 })();

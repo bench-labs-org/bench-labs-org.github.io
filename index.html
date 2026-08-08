@@ -53,6 +53,251 @@
         opacity: 1;
       }
     }
+
+    /* Slopfinder Styles */
+    :root {
+      --bg: #171717;
+      --panel: #1d1d1d;
+      --panel2: #222222;
+      --text: #f3f5f7;
+      --muted: #a1a1aa;
+      --border: rgba(255, 255, 255, 0.08);
+      --green: #79e6b2;
+      --red: #ff8585;
+      --slider: 50%;
+    }
+
+    .prompt-label,
+    .response-label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .conversation {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      background: var(--panel);
+    }
+
+    .message {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .message:last-child {
+      border-bottom: 0;
+    }
+
+    .message .role {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .message.user {
+      background: rgba(255,255,255,.018);
+    }
+
+    .message.assistant {
+      background: rgba(121,230,178,.025);
+    }
+
+    .output {
+      margin-top: 30px;
+    }
+
+    .response {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--panel2);
+      padding: 24px;
+      min-height: 180px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.65;
+      font-size: 17px;
+      transition:
+        transform .08s linear,
+        opacity .15s ease;
+    }
+
+    .response.moving {
+      transform:
+        translateX(
+          calc(
+            (var(--slider) - 50%) * .12
+          )
+        );
+    }
+
+    .judge {
+      margin-top: 34px;
+    }
+
+    .labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 11px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .labels .bad {
+      color: var(--red);
+    }
+
+    .labels .good {
+      color: var(--green);
+    }
+
+    .slider-area {
+      position: relative;
+      height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 14px;
+      border-radius: 999px;
+      background:
+        linear-gradient(
+          to right,
+          var(--red) 0%,
+          var(--red) var(--slider),
+          var(--green) var(--slider),
+          var(--green) 100%
+        );
+      opacity: .9;
+    }
+
+    input[type="range"] {
+      position: absolute;
+      width: 100%;
+      height: 48px;
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: grab;
+    }
+
+    input[type="range"]:active {
+      cursor: grabbing;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 14px;
+      background: transparent;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 14px;
+      background: transparent;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #111;
+      box-shadow:
+        0 4px 20px rgba(0,0,0,.5);
+      margin-top: -9px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #111;
+      box-shadow:
+        0 4px 20px rgba(0,0,0,.5);
+    }
+
+    .instruction {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .metadata {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 34px;
+      transform:
+        translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+
+      padding: 11px 16px;
+      border-radius: 999px;
+
+      background: #151b18;
+      border: 1px solid rgba(121,230,178,.3);
+
+      color: #dffff0;
+      font-size: 14px;
+      font-weight: 600;
+
+      transition:
+        opacity .18s ease,
+        transform .18s ease;
+
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform:
+        translate(-50%, 0);
+    }
+
+    .error {
+      padding: 20px;
+      border: 1px solid rgba(255,133,133,.25);
+      border-radius: 18px;
+      color: #ffcaca;
+      background: rgba(255,80,80,.05);
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 700px) {
+      .response {
+        padding: 18px;
+        font-size: 15px;
+      }
+
+      .message {
+        padding: 15px;
+      }
+    }
   </style>
   <link rel="stylesheet" href="static/ui.css">
 </head>
@@ -155,6 +400,129 @@
         <p class="leading-8 font-normal tracking-normal text-zinc-400">
           Bench Labs is a nonprofit, open-source community exploring artificial intelligence with contributors and partner organizations. We build and share compact generative models, practical research tools, and lightweight benchmarks in the open, with a focus on accessible technology and permissive licensing.
         </p>
+      </section>
+
+      <!-- ================================================================
+           SLOPFINDER — vertical animated line next to the h2 block
+           ================================================================ -->
+      <section id="slopfinder" class="vline-section relative pl-8 md:pl-10 scroll-mt-24">
+        <!-- Vertical line: faint gradient track + traveling dash (with soft glow layer) -->
+        <svg class="vline absolute left-0 top-0 h-full w-[6px] overflow-visible"
+             viewBox="0 0 6 100" preserveAspectRatio="none" aria-hidden="true">
+          <!-- faint static track, transparent at the tips -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="url(#vlineFade)" stroke-width="1" vector-effect="non-scaling-stroke"
+                opacity="0.16" />
+          <!-- soft glow copy of the traveling dash -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="4" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.10"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.5s" begin="-1.8s" repeatCount="indefinite" />
+          </line>
+          <!-- crisp core of the traveling dash -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="1.5" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.45"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.5s" begin="-1.8s" repeatCount="indefinite" />
+          </line>
+        </svg>
+
+        <div class="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between border-b border-zinc-800 pb-6 w-full">
+          <div>
+            <h2 class="text-3xl font-bold tracking-tight text-zinc-100">Slopfinder</h2>
+            <p class="mt-2 text-base text-zinc-400">
+              Human judgments for AI output
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-xs text-zinc-400 font-medium" id="status">
+            Loading…
+          </div>
+        </div>
+
+        <!-- Slopfinder Interactive UI -->
+        <div class="max-w-4xl mx-auto">
+          <div class="prompt-label">
+            Conversation
+          </div>
+
+          <div
+            class="conversation"
+            id="conversation"
+          >
+            <div class="message">
+              Loading…
+            </div>
+          </div>
+
+
+          <section class="output">
+
+            <div class="response-label">
+              Assistant output
+            </div>
+
+            <div
+              class="response"
+              id="response"
+            >
+              Loading…
+            </div>
+
+          </section>
+
+
+          <section class="judge">
+
+            <div class="labels">
+              <span class="bad">
+                SLOP
+              </span>
+
+              <span class="good">
+                NOT SLOP
+              </span>
+            </div>
+
+
+            <div class="slider-area">
+
+              <div
+                class="track"
+                id="track"
+              ></div>
+
+              <input
+                id="slider"
+                type="range"
+                min="0"
+                max="100"
+                value="50"
+                aria-label="How much slop?"
+              >
+
+            </div>
+
+
+            <div class="instruction">
+              Drag anywhere along the line, then release.
+            </div>
+
+          </section>
+
+
+          <div class="metadata">
+            <span id="source">
+              Source loading…
+            </span>
+
+            <span id="row">
+              —
+            </span>
+          </div>
+        </div>
       </section>
 
       <!-- ================================================================
@@ -356,6 +724,154 @@
         });
       }, { threshold: 0.25 });
       sections.forEach(s => io.observe(s));
+    })();
+  </script>
+
+  <!-- Slopfinder Logic -->
+  <script>
+    (function() {
+      const API = "https://slopfinder-api.mmmmmm505090.workers.dev";
+
+      function getSessionId() {
+        let id = localStorage.getItem("slopfinder_session");
+        if (!id) {
+          id = crypto.randomUUID();
+          localStorage.setItem("slopfinder_session", id);
+        }
+        return id;
+      }
+
+      const sessionId = getSessionId();
+
+      const conversation = document.getElementById("conversation");
+      const response = document.getElementById("response");
+      const slider = document.getElementById("slider");
+      const track = document.getElementById("track");
+      const source = document.getElementById("source");
+      const row = document.getElementById("row");
+      const status = document.getElementById("status");
+      const toast = document.getElementById("toast");
+
+      let currentSample = null;
+      let sending = false;
+
+      function updateSlider() {
+        const value = Number(slider.value);
+        const percent = `${value}%`;
+        document.documentElement.style.setProperty("--slider", percent);
+        response.classList.add("moving");
+
+        const distance = (value - 50) * 0.12;
+        response.style.transform = `translateX(${distance}px)`;
+      }
+
+      function renderConversation(messages) {
+        conversation.innerHTML = "";
+        if (!Array.isArray(messages) || messages.length === 0) {
+          conversation.innerHTML = `<div class="message">No conversation context.</div>`;
+          return;
+        }
+
+        for (const message of messages) {
+          const div = document.createElement("div");
+          const role = String(message.role || "message").toLowerCase();
+          div.className = `message ${role}`;
+
+          const roleDiv = document.createElement("div");
+          roleDiv.className = "role";
+          roleDiv.textContent = role;
+
+          const contentDiv = document.createElement("div");
+          contentDiv.textContent = message.content || "";
+
+          div.appendChild(roleDiv);
+          div.appendChild(contentDiv);
+          conversation.appendChild(div);
+        }
+      }
+
+      async function loadNext() {
+        status.textContent = "Fetching…";
+        try {
+          const res = await fetch(`${API}/api/next`);
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || `HTTP ${res.status}`);
+          }
+          currentSample = data;
+          renderConversation(data.prompt);
+          response.textContent = data.content || "";
+          source.textContent = data.source_dataset || "";
+          row.textContent = data.source_row_id || "";
+          slider.value = 50;
+          updateSlider();
+          status.textContent = "Ready.";
+        } catch (error) {
+          status.textContent = "Error";
+          conversation.innerHTML = "";
+          const errorBox = document.createElement("div");
+          errorBox.className = "error";
+          errorBox.textContent = error instanceof Error ? error.message : String(error);
+          conversation.appendChild(errorBox);
+          response.textContent = "Could not load sample.";
+        }
+      }
+
+      async function sendVote() {
+        if (!currentSample || sending) {
+          return;
+        }
+        sending = true;
+        slider.disabled = true;
+        status.textContent = "Saving…";
+
+        const value = (Number(slider.value) - 50) / 50;
+
+        try {
+          const res = await fetch(`${API}/api/vote`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Session-ID": sessionId
+            },
+            body: JSON.stringify({
+              content: currentSample.content,
+              value,
+              source_dataset: currentSample.source_dataset,
+              source_row_id: currentSample.source_row_id
+            })
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || `HTTP ${res.status}`);
+          }
+
+          toast.classList.add("show");
+          status.textContent = "Vote sent ✓";
+
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          toast.classList.remove("show");
+          await loadNext();
+        } catch (error) {
+          status.textContent = "Vote failed";
+          alert(error instanceof Error ? error.message : String(error));
+        } finally {
+          sending = false;
+          slider.disabled = false;
+        }
+      }
+
+      slider.addEventListener("input", updateSlider);
+      slider.addEventListener("pointerup", sendVote);
+      slider.addEventListener("change", () => {
+        if (document.activeElement === slider) {
+          sendVote();
+        }
+      });
+
+      updateSlider();
+      loadNext();
     })();
   </script>
 
@@ -688,5 +1204,12 @@
       });
     })();
   </script>
+
+  <div
+    class="toast"
+    id="toast"
+  >
+    ✓ Vote sent
+  </div>
 </body>
 </html>
