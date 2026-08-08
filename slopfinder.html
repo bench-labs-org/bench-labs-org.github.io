@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bench Labs — Slopfinder</title>
+  <meta property="og:title" content="Slopfinder — Bench Labs">
+<meta property="og:description" content="Human judgments for AI output. Slide to rate: slop or not slop.">
+<meta property="og:type" content="website">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Slopfinder — Bench Labs">
+<meta name="twitter:description" content="Human judgments for AI output. Slide to rate: slop or not slop.">
+
+<meta name="description" content="Human judgments for AI output — vote slop or not slop on real model outputs.">
 
   <!-- Tailwind CSS -->
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
@@ -143,21 +152,26 @@
     }
 
     .track {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 14px;
-      border-radius: 999px;
-      background:
-        linear-gradient(
-          to right,
-          var(--red) 0%,
-          var(--red) var(--slider),
-          var(--green) var(--slider),
-          var(--green) 100%
-        );
-      opacity: .9;
-    }
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14px;
+  border-radius: 999px;
+  background: #333;
+  opacity: .9;
+  overflow: hidden;
+}
+
+.track::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* left edge = min(50%, slider), right edge = max(50%, slider) */
+  left: min(var(--slider), 50%);
+  right: min(calc(100% - var(--slider)), 50%);
+  background: var(--fill-color, var(--red));
+}
 
     input[type="range"] {
       position: absolute;
@@ -275,6 +289,88 @@
         padding: 15px;
       }
     }
+    .mode-btn {
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  border: none;
+  transition: background .12s ease, color .12s ease;
+}
+.mode-btn.active {
+  background: rgba(121,230,178,.12);
+  color: var(--green);
+}
+
+.custom-turn {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.custom-turn:last-child { border-bottom: 0; }
+
+.custom-turn select {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  flex-shrink: 0;
+}
+
+.custom-turn textarea {
+  flex: 1;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  resize: vertical;
+  min-height: 44px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.custom-turn .remove-turn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px;
+  flex-shrink: 0;
+}
+.custom-turn .remove-turn:hover { color: var(--red); }
+
+.custom-controls {
+  padding: 12px 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.custom-controls button {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.custom-controls button:hover { border-color: rgba(255,255,255,.2); }
+
+.custom-controls button.primary {
+  background: rgba(121,230,178,.12);
+  border-color: rgba(121,230,178,.3);
+  color: var(--green);
+}
+
+.hidden { display: none !important; }
   </style>
   <link rel="stylesheet" href="static/ui.css">
 </head>
@@ -296,34 +392,34 @@
         Loading…
       </div>
     </div>
+    <div class="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1 text-xs font-medium" id="modeToggle">
+  <button type="button" data-mode="random" class="mode-btn px-3 py-1.5 rounded-md">Random</button>
+  <button type="button" data-mode="custom" class="mode-btn px-3 py-1.5 rounded-md">Custom</button>
+</div>
 
     <div>
-      <div class="prompt-label">
-        Conversation
-      </div>
+     <div id="randomMode">
+  <div class="prompt-label">Conversation</div>
+  <div class="conversation" id="conversation">
+    <div class="message">Loading…</div>
+  </div>
 
-      <div
-        class="conversation"
-        id="conversation"
-      >
-        <div class="message">
-          Loading…
-        </div>
-      </div>
+  <section class="output">
+    <div class="response-label">Assistant output</div>
+    <div class="response" id="response">Loading…</div>
+  </section>
+</div>
 
+<div id="customMode" class="hidden">
+  <div class="prompt-label">Your conversation</div>
 
-      <section class="output">
+  <div class="conversation" id="customTurns"></div>
 
-        <div class="response-label">
-          Assistant output
-        </div>
-
-        <div
-          class="response"
-          id="response"
-        >
-          Loading…
-        </div>
+  <div class="custom-controls">
+    <button type="button" id="addTurn">+ Add turn</button>
+    <button type="button" id="scoreCustom" class="primary">Score this</button>
+  </div>
+</div>
 
       </section>
 
@@ -391,6 +487,136 @@
 
   <!-- Script logic kept perfectly intact -->
   <script>
+  /* ===== Custom mode ===== */
+
+const randomModeEl = document.getElementById("randomMode");
+const customModeEl = document.getElementById("customMode");
+const modeToggle = document.getElementById("modeToggle");
+const customTurns = document.getElementById("customTurns");
+const addTurnBtn = document.getElementById("addTurn");
+const scoreCustomBtn = document.getElementById("scoreCustom");
+
+let mode = "random"; // "random" | "custom"
+
+function setMode(next) {
+  mode = next;
+
+  modeToggle.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === next);
+  });
+
+  randomModeEl.classList.toggle("hidden", next !== "random");
+  customModeEl.classList.toggle("hidden", next !== "custom");
+
+  // reset response panel + slider for the new mode
+  slider.value = 50;
+  updateSlider();
+  status.textContent = next === "custom" ? "Build a conversation, then score it." : "Ready.";
+  source.textContent = next === "custom" ? "custom" : (currentSample?.source_dataset || "");
+  row.textContent = next === "custom" ? "—" : (currentSample?.source_row_id || "—");
+
+  if (next === "custom" && customTurns.children.length === 0) {
+    addCustomTurn("user");
+    addCustomTurn("assistant");
+  }
+}
+
+modeToggle.addEventListener("click", (e) => {
+  const btn = e.target.closest(".mode-btn");
+  if (!btn) return;
+  setMode(btn.dataset.mode);
+});
+
+function addCustomTurn(role = "user", content = "") {
+  const div = document.createElement("div");
+  div.className = "custom-turn";
+
+  const select = document.createElement("select");
+  ["user", "assistant"].forEach(r => {
+    const opt = document.createElement("option");
+    opt.value = r;
+    opt.textContent = r;
+    if (r === role) opt.selected = true;
+    select.appendChild(opt);
+  });
+
+  const textarea = document.createElement("textarea");
+  textarea.placeholder = role === "user" ? "User message…" : "Assistant response…";
+  textarea.value = content;
+
+  const removeBtn = document.createElement("button");
+  removeBtn.className = "remove-turn";
+  removeBtn.type = "button";
+  removeBtn.innerHTML = "&times;";
+  removeBtn.addEventListener("click", () => {
+    div.remove();
+  });
+
+  div.appendChild(select);
+  div.appendChild(textarea);
+  div.appendChild(removeBtn);
+  customTurns.appendChild(div);
+
+  textarea.focus();
+}
+
+addTurnBtn.addEventListener("click", () => {
+  // Alternate default role based on last turn, for convenience
+  const last = customTurns.lastElementChild;
+  const lastRole = last?.querySelector("select")?.value;
+  addCustomTurn(lastRole === "user" ? "assistant" : "user");
+});
+
+function collectCustomTurns() {
+  return Array.from(customTurns.children).map(div => ({
+    role: div.querySelector("select").value,
+    content: div.querySelector("textarea").value.trim()
+  })).filter(t => t.content.length > 0);
+}
+
+async function scoreCustomConversation() {
+  const turns = collectCustomTurns();
+
+  if (turns.length === 0) {
+    alert("Add at least one turn with content before scoring.");
+    return;
+  }
+
+  const lastAssistant = [...turns].reverse().find(t => t.role === "assistant");
+
+  if (!lastAssistant) {
+    alert("Add at least one assistant turn to score.");
+    return;
+  }
+
+  // Show it in the same response panel styling for consistency
+  currentSample = {
+  prompt: turns.slice(0, turns.lastIndexOf(lastAssistant)),
+  content: lastAssistant.content,
+  source_dataset: "custom",       // or match a real dataset name if you want zero distinction
+  source_row_id: `custom-${crypto.randomUUID()}`
+};
+
+  // Re-use the existing response element by temporarily revealing it
+  randomModeEl.classList.remove("hidden");
+  customModeEl.classList.add("hidden");
+
+  renderConversation(currentSample.prompt);
+  response.textContent = currentSample.content;
+  source.textContent = "custom";
+  row.textContent = "—";
+
+  slider.value = 50;
+  updateSlider();
+  status.textContent = "Slide to score this custom output.";
+
+  // Add a "back to editing" affordance via the mode toggle staying on "custom" visually
+  modeToggle.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === "custom");
+  });
+}
+
+scoreCustomBtn.addEventListener("click", scoreCustomConversation);
     /*
      * Your Worker
      */
@@ -746,19 +972,12 @@
                   sessionId
               },
 
-              body:
-                JSON.stringify({
-                  content:
-                    currentSample.content,
-
-                  value,
-
-                  source_dataset:
-                    currentSample.source_dataset,
-
-                  source_row_id:
-                    currentSample.source_row_id
-                })
+              body: JSON.stringify({
+  content: currentSample.content,
+  value,
+  source_dataset: currentSample.source_dataset,
+  source_row_id: currentSample.source_row_id
+})
             }
           );
 
@@ -780,35 +999,25 @@
          * Vote sent
          */
 
-        toast.classList.add(
-          "show"
-        );
+        toast.classList.add("show");
 
+status.textContent = "Vote sent ✓";
 
-        status.textContent =
-          "Vote sent ✓";
+/*
+ * Wait exactly 1 second
+ * before pulling another.
+ */
 
+await new Promise(
+  resolve =>
+    setTimeout(
+      resolve,
+      1000
+    )
+);
 
-        /*
-         * Wait exactly 1 second
-         * before pulling another.
-         */
-
-        await new Promise(
-          resolve =>
-            setTimeout(
-              resolve,
-              1000
-            )
-        );
-
-
-        toast.classList.remove(
-          "show"
-        );
-
-
-        await loadNext();
+toast.classList.remove("show");
+await loadNext();
 
 
       } catch (error) {
@@ -875,6 +1084,22 @@
     /*
      * Start
      */
+     function updateSlider() {
+  const value = Number(slider.value);
+  const percent = `${value}%`;
+
+  document.documentElement.style.setProperty("--slider", percent);
+  document.documentElement.style.setProperty(
+    "--fill-color",
+    value >= 50 ? "var(--green)" : "var(--red)"
+  );
+
+  response.classList.add("moving");
+
+  const distance = (value - 50) * 0.12;
+  response.style.transform = `translateX(${distance}px)`;
+}
+    modeToggle.querySelector('[data-mode="random"]').classList.add("active");
 
     updateSlider();
 
