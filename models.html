@@ -12,58 +12,184 @@
   </style>
   <link rel="stylesheet" href="static/ui.css">
 </head>
-<body class="bg-zinc-950 text-zinc-100 antialiased min-h-screen flex flex-col">
+<body class="bg-[#171717] text-zinc-100 antialiased min-h-screen flex flex-col">
 
   <!-- Main container -->
-  <main class="flex-grow py-16 md:py-24 max-w-4xl mx-auto px-6 md:px-8 w-full">
-    <div class="text-center max-w-2xl mx-auto mb-16">
+  <main class="flex-grow py-16 md:py-24 max-w-5xl mx-auto px-6 md:px-8 w-full">
+    <div class="text-center max-w-2xl mx-auto mb-12">
       <h1 class="text-4xl font-bold tracking-tight text-zinc-100 md:text-5xl">Our Models</h1>
       <p class="mt-4 text-base md:text-lg text-zinc-400">
         Browse and discover our collections of open weights, tiny, and exceptionally efficient generative models.
       </p>
     </div>
 
-    <!-- Category Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Interactive Explorer Section -->
+    <div class="mb-10 flex flex-col md:flex-row gap-4 items-center justify-between border-b border-zinc-800 pb-6">
+      <!-- Tag Filters -->
+      <div class="flex flex-wrap gap-2" id="tag-filters">
+        <button data-filter="all" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-900 border border-transparent cursor-pointer transition-colors hover:bg-zinc-200">
+          All
+        </button>
+        <button data-filter="t2i" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700/50 cursor-pointer transition-colors hover:bg-zinc-700">
+          Text-to-Image
+        </button>
+        <button data-filter="t23d" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700/50 cursor-pointer transition-colors hover:bg-zinc-700">
+          Text-to-3D
+        </button>
+        <button data-filter="lm" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700/50 cursor-pointer transition-colors hover:bg-zinc-700">
+          Language Models
+        </button>
+      </div>
 
-      <!-- Text-to-Image Card -->
-      <a href="text-to-image.html" class="ui-card ui-card-interactive group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 transition-all duration-300 hover:border-zinc-700 hover:bg-zinc-900/60 hover:-translate-y-1">
-        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 group-hover:bg-zinc-100 group-hover:text-zinc-950 transition-colors duration-300 mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-          </svg>
-        </div>
-        <h2 class="text-2xl font-bold text-zinc-100 group-hover:text-white mb-2">Text-to-Image</h2>
-        <p class="text-sm leading-6 text-zinc-400">
-          Tiny text-to-image diffusion models, built on rectified flow and DiT architectures. Includes our PixelModel series ranging from 23k to 200M parameters.
-        </p>
-        <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
-          Explore models
-          <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
-        </span>
-      </a>
+      <!-- Partner Filters -->
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-zinc-500 font-medium">Author:</span>
+        <select id="author-select" class="bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-zinc-700">
+          <option value="all">All Authors</option>
+          <option value="bench-labs">Bench Labs</option>
+          <option value="fromziro">FromZero</option>
+          <option value="FlameF0X">FlameF0X (FWKV)</option>
+        </select>
+      </div>
+    </div>
 
-      <!-- Text-to-3D Card -->
-      <a href="text-to-3d.html" class="ui-card ui-card-interactive group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 transition-all duration-300 hover:border-zinc-700 hover:bg-zinc-900/60 hover:-translate-y-1">
-        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 group-hover:bg-zinc-100 group-hover:text-zinc-950 transition-colors duration-300 mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
-          </svg>
-        </div>
-        <h2 class="text-2xl font-bold text-zinc-100 group-hover:text-white mb-2">Text-to-3D</h2>
-        <p class="text-sm leading-6 text-zinc-400">
-          Open weights models for 3D scene generation. Featuring our VoxelModel-v1, powered by a lightweight 40.2M parameter rectified-flow diffusion backbone.
-        </p>
-        <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
-          Explore models
-          <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
-        </span>
-      </a>
-
+    <!-- Models Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="models-explorer-grid">
+      <!-- Cards dynamically rendered / filtered below -->
     </div>
   </main>
 
   <!-- Navigation JS -->
   <script src="static/navigation.js"></script>
+
+  <!-- Models list & Filter code -->
+  <script>
+    const modelsData = [
+      {
+        id: "bench-labs/PixelModel-v6",
+        name: "PixelModel v6",
+        description: "Multi-modal diffusion transformer model.",
+        type: "t2i",
+        author: "bench-labs",
+        coauthor: "AtomixLabs",
+        params: "0.2B",
+        link: "https://huggingface.co/bench-labs/PixelModel-v6"
+      },
+      {
+        id: "bench-labs/PixelModel-v5",
+        name: "PixelModel v5",
+        description: "Rectified-flow diffusion transformer system.",
+        type: "t2i",
+        author: "bench-labs",
+        coauthor: "FWKV",
+        params: "0.2B",
+        link: "https://huggingface.co/bench-labs/PixelModel-v5"
+      },
+      {
+        id: "bench-labs/VoxelModel-v1",
+        name: "VoxelModel-v1",
+        description: "Lightweight 3D scene generator.",
+        type: "t23d",
+        author: "bench-labs",
+        coauthor: "İvmeLabs",
+        params: "40.2M",
+        link: "https://huggingface.co/bench-labs/VoxelModel-v1"
+      },
+      {
+        id: "fromziro/Er-Tiny-1.3M",
+        name: "Er-Tiny 1.3M",
+        description: "Stupidly small Qwen3.5 language model.",
+        type: "lm",
+        author: "fromziro",
+        coauthor: "Bench Labs",
+        params: "1.3M",
+        link: "https://huggingface.co/fromziro/Er-Tiny-1.3M"
+      },
+      {
+        id: "FlameF0X/FWKV-29M",
+        name: "FWKV 29M",
+        description: "Novel efficient recurrent language model.",
+        type: "lm",
+        author: "FlameF0X",
+        coauthor: "Bench Labs",
+        params: "29M",
+        link: "https://huggingface.co/FlameF0X/FWKV-29M"
+      }
+    ];
+
+    const grid = document.getElementById('models-explorer-grid');
+    const authorSelect = document.getElementById('author-select');
+    const tagButtons = document.querySelectorAll('#tag-filters button');
+
+    let activeTag = 'all';
+    let activeAuthor = 'all';
+
+    function render() {
+      const filtered = modelsData.filter(m => {
+        const matchesTag = activeTag === 'all' || m.type === activeTag;
+        const matchesAuthor = activeAuthor === 'all' || m.author === activeAuthor;
+        return matchesTag && matchesAuthor;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center">
+            <p class="text-sm text-zinc-500">No models match the selected filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(model => `
+        <div class="ui-card group relative flex flex-col justify-between rounded-2xl border border-zinc-800 p-6 transition-all duration-300">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div>
+                <h3 class="text-lg font-bold text-zinc-100 group-hover:text-white">${model.name}</h3>
+                <span class="text-[10px] text-zinc-500 font-medium">By ${model.author}</span>
+              </div>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700/50">${model.params}</span>
+            </div>
+            <p class="text-xs text-zinc-400 mb-6 leading-relaxed">
+              ${model.description}
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 mt-auto">
+            <div class="flex items-center justify-between border-t border-zinc-800/50 pt-3">
+              <span class="text-[10px] text-zinc-500">Co-author: <span class="text-zinc-400 font-semibold">${model.coauthor}</span></span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800 uppercase font-bold tracking-wider">${model.type}</span>
+            </div>
+            <a href="${model.link}" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-300 group-hover:text-white">
+              Explore Model
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Tag button click events
+    tagButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tagButtons.forEach(b => {
+          b.classList.remove('bg-zinc-100', 'text-zinc-900');
+          b.classList.add('bg-zinc-800', 'text-zinc-300', 'border-zinc-700/50');
+        });
+        btn.classList.add('bg-zinc-100', 'text-zinc-900');
+        btn.classList.remove('bg-zinc-800', 'text-zinc-300', 'border-zinc-700/50');
+        activeTag = btn.getAttribute('data-filter');
+        render();
+      });
+    });
+
+    // Author selection change event
+    authorSelect.addEventListener('change', (e) => {
+      activeAuthor = e.target.value;
+      render();
+    });
+
+    // Initial render
+    render();
+  </script>
 </body>
 </html>
