@@ -10,12 +10,14 @@
   const isBenchmarks = pathname.includes('benchmarks.html');
   const isPartnerships = pathname.includes('partnerships.html');
   const isLetsPartner = pathname.includes('lets-partner.html');
+  const isSlopfinder = pathname.includes('slopfinder.html');
 
   const navItems = [
-    { name: 'Home', url: isHome ? '#hero' : 'index.html', active: isHome && !pathname.includes('partnerships') && !pathname.includes('benchmarks') },
+    { name: 'Home', url: isHome ? '#hero' : 'index.html', active: isHome && !pathname.includes('partnerships') && !pathname.includes('benchmarks') && !pathname.includes('slopfinder') },
     { name: 'Models', url: 'models.html', active: isModels },
     { name: 'Benchmarks', url: 'benchmarks.html', active: isBenchmarks },
     { name: 'Partnerships', url: 'partnerships.html', active: isPartnerships },
+    { name: 'Slopfinder', url: 'slopfinder.html', active: isSlopfinder },
     { name: "Let's Partner", url: 'lets-partner.html', active: isLetsPartner },
     { name: 'Discord', url: 'https://discord.gg/zRzbNJBVQQ', external: true }
   ];
