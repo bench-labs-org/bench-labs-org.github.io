@@ -12,16 +12,17 @@
     }
     .partner-page { position: relative; overflow: visible; }
     .partner-page__section { position: relative; }
-    .partner-page__section--left { padding-left: 5rem; }
-    .partner-page__section--right { padding-right: 5rem; }
+    .partner-page__section--left { padding-left: 0; }
+    .partner-page__section--right { padding-right: 0; }
     .partner-page__section > :not(.partner-page__art) { position: relative; z-index: 1; }
-    .partner-page__art { position: absolute; top: .5rem; width: 3.5rem; height: 8rem; pointer-events: none; opacity: .82; }
-    .partner-page__art--left { left: .5rem; }
-    .partner-page__art--right { right: .5rem; }
+    .partner-page__art { display: none; }
     @media (prefers-reduced-motion: reduce) { .partner-page__art animate { display: none; } }
-    @media (max-width: 767px) {
-      .partner-page__section--left { padding-left: 4.25rem; }
-      .partner-page__section--right { padding-right: 4.25rem; }
+    @media (min-width: 768px) {
+      .partner-page__section--left { padding-left: 5rem; }
+      .partner-page__section--right { padding-right: 5rem; }
+      .partner-page__art { display: block; position: absolute; top: .5rem; width: 3.5rem; height: 8rem; pointer-events: none; opacity: .82; }
+      .partner-page__art--left { left: .5rem; }
+      .partner-page__art--right { right: .5rem; }
     }
   </style>
   <link rel="stylesheet" href="static/ui.css">

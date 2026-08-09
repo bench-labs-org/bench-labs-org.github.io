@@ -36,6 +36,9 @@
         <button data-filter="t23d" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700/50 cursor-pointer transition-colors hover:bg-zinc-700">
           Text-to-3D
         </button>
+        <button data-filter="t2a" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700/50 cursor-pointer transition-colors hover:bg-zinc-700">
+          Text-to-Audio
+        </button>
         <button data-filter="lm" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700/50 cursor-pointer transition-colors hover:bg-zinc-700">
           Language Models
         </button>
@@ -48,7 +51,7 @@
           <option value="all">All Authors</option>
           <option value="bench-labs">Bench Labs</option>
           <option value="fromziro">FromZero</option>
-          <option value="FlameF0X">FlameF0X (FWKV)</option>
+          <option value="FWKV">FWKV / FlameF0X</option>
         </select>
       </div>
     </div>
@@ -71,7 +74,7 @@
         description: "Multi-modal diffusion transformer model.",
         type: "t2i",
         author: "bench-labs",
-        coauthor: "AtomixLabs",
+        coauthor: "—",
         params: "0.2B",
         link: "https://huggingface.co/bench-labs/PixelModel-v6"
       },
@@ -81,7 +84,7 @@
         description: "Rectified-flow diffusion transformer system.",
         type: "t2i",
         author: "bench-labs",
-        coauthor: "FWKV",
+        coauthor: "—",
         params: "0.2B",
         link: "https://huggingface.co/bench-labs/PixelModel-v5"
       },
@@ -91,7 +94,7 @@
         description: "Lightweight 3D scene generator.",
         type: "t23d",
         author: "bench-labs",
-        coauthor: "İvmeLabs",
+        coauthor: "—",
         params: "40.2M",
         link: "https://huggingface.co/bench-labs/VoxelModel-v1"
       },
@@ -101,9 +104,39 @@
         description: "Stupidly small Qwen3.5 language model.",
         type: "lm",
         author: "fromziro",
-        coauthor: "Bench Labs",
+        coauthor: "—",
         params: "1.3M",
         link: "https://huggingface.co/fromziro/Er-Tiny-1.3M"
+      },
+      {
+        id: "FWKV/FWKV-ROSA",
+        name: "FWKV-ROSA",
+        description: "A 56M-parameter recurrent language model combining a per-channel leaky integrator (FWKV) with ROSA copy-signal mechanism.",
+        type: "lm",
+        author: "FWKV",
+        coauthor: "—",
+        params: "56M",
+        link: "https://huggingface.co/FWKV/FWKV-ROSA"
+      },
+      {
+        id: "FWKV/FWKV-Image",
+        name: "FWKV-Image",
+        description: "A compact text-to-image diffusion transformer that replaces standard self-attention with bidirectional FWKV token mixing.",
+        type: "t2i",
+        author: "FWKV",
+        coauthor: "—",
+        params: "40M",
+        link: "https://huggingface.co/FWKV/FWKV-Image"
+      },
+      {
+        id: "bench-labs/AudioModel-v1",
+        name: "AudioModel v1",
+        description: "A tiny text-to-audio diffusion model running DiT and rectified flow directly on mel spectrograms.",
+        type: "t2a",
+        author: "bench-labs",
+        coauthor: "—",
+        params: "40.3M",
+        link: "https://huggingface.co/bench-labs/AudioModel-v1"
       },
       {
         id: "FlameF0X/FWKV-29M",
@@ -127,7 +160,7 @@
     function render() {
       const filtered = modelsData.filter(m => {
         const matchesTag = activeTag === 'all' || m.type === activeTag;
-        const matchesAuthor = activeAuthor === 'all' || m.author === activeAuthor;
+        const matchesAuthor = activeAuthor === 'all' || m.author === activeAuthor || (activeAuthor === 'FWKV' && m.author === 'FlameF0X');
         return matchesTag && matchesAuthor;
       });
 
