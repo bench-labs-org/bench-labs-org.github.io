@@ -974,6 +974,7 @@ scoreCustomBtn.addEventListener("click", scoreCustomConversation);
 
               body: JSON.stringify({
   content: currentSample.content,
+  prompt: currentSample.prompt || [],
   value,
   source_dataset: currentSample.source_dataset,
   source_row_id: currentSample.source_row_id
