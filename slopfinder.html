@@ -574,6 +574,18 @@ function collectCustomTurns() {
   })).filter(t => t.content.length > 0);
 }
 
+function assistantOnlyDisplay(text) {
+  const full = String(text || "").trim();
+  if (!full) return "";
+
+  const matches = [...full.matchAll(/(?:^|\n)Assistant:\s*([\s\S]*?)(?=\n(?:User|Human|Assistant|System):|$)/gi)];
+  if (matches.length > 0) {
+    return matches[matches.length - 1][1].trim();
+  }
+
+  return full;
+}
+
 async function scoreCustomConversation() {
   const turns = collectCustomTurns();
 
@@ -602,7 +614,7 @@ async function scoreCustomConversation() {
   customModeEl.classList.add("hidden");
 
   renderConversation(currentSample.prompt);
-  response.textContent = currentSample.content;
+  response.textContent = assistantOnlyDisplay(currentSample.content);
   source.textContent = "custom";
   row.textContent = "—";
 
@@ -863,8 +875,9 @@ scoreCustomBtn.addEventListener("click", scoreCustomConversation);
 
 
         response.textContent =
-          data.content ||
-          "";
+          assistantOnlyDisplay(
+            data.content || ""
+          );
 
 
         source.textContent =
