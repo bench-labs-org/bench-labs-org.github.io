@@ -363,7 +363,7 @@
       let width, height, time = 0;
       let dpr = 1;
 
-      let drawProgress = 0; // Tracks one-time stroke progress (0 to 1)
+      let loopProgress = 0; // Tracks the continuous crawling offset around the logo loops
 
       // Bench Labs Logo Path segments (re-centered around 0,0 dynamically)
       const d1 = "M54.43 72.25C54.04 72.25 53.52 72.18 53.25 72.5C52.77 73.04 52.82 79.52 53.29 79.96C55.2 81.78 60.19 78.95 60.2 82.42C60.21 83.5 60.52 87.44 59.85 88.09C58.94 88.98 54.96 87.96 53.6 88.37C52.82 88.61 52.76 94.66 52.99 95.58C53.56 97.81 59.68 95.2 60.16 97.42C60.64 99.67 60.21 102.45 60.21 104.75C60.21 109.86 60.21 114.97 60.21 120.08C60.21 121.55 59.75 125.48 60.26 126.66C60.44 127.08 61.02 127.16 61.42 127.21C62.9 127.41 66.46 127.79 67.59 126.67C68.63 125.64 68.06 122.26 68.05 120.92C68.04 115.43 68.19 109.89 68.02 104.42C67.99 103.18 67.53 97.23 68.45 96.69C69.09 96.31 70.21 96.48 70.92 96.5C75.84 96.61 74.63 97.75 74.57 102.08C74.52 105.86 74.58 109.64 74.58 113.42C74.58 114.43 74.16 116.81 74.79 117.63C75.3 118.29 79.64 118.1 80.58 118.02C82.55 117.84 81.93 115.42 81.94 113.92C81.96 109.75 81.88 105.58 81.84 101.42C81.83 100.28 81.29 96.86 82.82 96.58C85.66 96.08 88.88 96.48 91.75 96.48C97.69 96.48 103.64 96.49 109.58 96.49C111.14 96.49 117.64 96.01 118.6 96.82C119.3 97.41 118.97 101.23 118.97 102.25C118.96 106.03 118.88 109.8 118.9 113.58C118.91 114.56 118.51 116.94 119.2 117.72C119.63 118.22 124.39 118.12 125.25 118.03C126.93 117.84 126.2 113.69 126.2 112.42C126.22 108.75 126.2 105.08 126.2 101.42C126.2 100.31 125.75 98.06 126.36 97.11C126.94 96.23 131.46 96.28 132.39 96.7C133.33 97.13 132.88 101.84 132.86 102.92C132.79 106.7 133.07 110.47 133.03 114.25C133 116.97 132.73 119.7 132.74 122.42C132.74 123.53 132.54 125.72 133.27 126.64C133.92 127.45 140.01 127.52 140.55 126.64C141.04 125.86 140.61 120.2 140.61 118.92C140.61 113.92 140.61 108.92 140.61 103.92C140.61 101.91 140.26 99.56 140.61 97.58C141.04 95.12 147.33 97.76 147.8 95.57C148.02 94.51 148.08 88.75 147.14 88.43C145.8 87.98 141.91 89 141.11 88.31C139.92 87.28 140.58 83.69 140.6 82.25C140.64 79.28 144.88 81.35 146.64 80.55C148.48 79.71 147.83 77.12 147.82 75.42C147.82 74.65 148.09 73.17 147.55 72.52C147.11 71.98 142.67 72.25 141.75 72.25C136.03 72.25 130.31 72.25 124.58 72.25C101.21 72.25 77.8 71.9 54.43 72.25Z";
@@ -372,21 +372,29 @@
       // Function to dynamically sample points from an SVG path string
       function sampleSVGPath(pathData, numPoints) {
           const svgNS = "http://www.w3.org/2000/svg";
+          const svgEl = document.createElementNS(svgNS, "svg");
+          svgEl.style.position = "absolute";
+          svgEl.style.width = "0";
+          svgEl.style.height = "0";
+          svgEl.style.pointerEvents = "none";
+
           const pathEl = document.createElementNS(svgNS, "path");
           pathEl.setAttribute("d", pathData);
+          svgEl.appendChild(pathEl);
+          document.body.appendChild(svgEl);
+
           const totalLength = pathEl.getTotalLength ? pathEl.getTotalLength() : 0;
           const points = [];
 
-          if (totalLength === 0) {
-              // Fail-safe basic mapping if getTotalLength is unavailable (highly unlikely in modern browsers)
-              return points;
+          if (totalLength > 0) {
+              for (let i = 0; i <= numPoints; i++) {
+                  const distance = (i / numPoints) * totalLength;
+                  const pt = pathEl.getPointAtLength(distance);
+                  points.push({ x: pt.x, y: pt.y });
+              }
           }
 
-          for (let i = 0; i <= numPoints; i++) {
-              const distance = (i / numPoints) * totalLength;
-              const pt = pathEl.getPointAtLength(distance);
-              points.push({ x: pt.x, y: pt.y });
-          }
+          document.body.removeChild(svgEl);
           return points;
       }
 
@@ -428,27 +436,36 @@
       window.addEventListener('resize', resize);
       resize();
 
-      // Helper to trim curve points based on progress (0 to 1)
-      function getSubPath(points, progress) {
-          if (points.length < 2 || progress <= 0) return [];
-          if (progress >= 1) return points;
+      // Helper to interpolate a point at any fractional progress [0, 1] on a closed loop
+      function getInterpolatedPoint(points, p) {
+          if (points.length === 0) return { x: 0, y: 0 };
+          // Wrap p to [0, 1]
+          p = p - Math.floor(p);
+          const N = points.length - 1;
+          const idx = p * N;
+          const i = Math.floor(idx);
+          const f = idx - i;
+          const p1 = points[i];
+          const p2 = points[i + 1] || points[0];
+          return {
+              x: p1.x + (p2.x - p1.x) * f,
+              y: p1.y + (p2.y - p1.y) * f
+          };
+      }
 
-          const totalSegments = points.length - 1;
-          const targetLength = totalSegments * progress;
-          const fullSegments = Math.floor(targetLength);
-          const segmentProgress = targetLength - fullSegments;
+      // Helper to extract a sliding window segment along a closed loop
+      function getSlidingWindow(points, progress, windowFraction) {
+          const subPoints = [];
+          const numSamples = 120; // smooth spacing of points for quadratic curves
+          const startProgress = progress - windowFraction;
+          const endProgress = progress;
 
-          const subPoints = points.slice(0, fullSegments + 1);
-
-          if (fullSegments < totalSegments) {
-              const p1 = points[fullSegments];
-              const p2 = points[fullSegments + 1];
-              subPoints.push({
-                  x: p1.x + (p2.x - p1.x) * segmentProgress,
-                  y: p1.y + (p2.y - p1.y) * segmentProgress
-              });
+          for (let i = 0; i <= numSamples; i++) {
+              const p = startProgress + (endProgress - startProgress) * (i / numSamples);
+              const pNormalized = p - Math.floor(p);
+              const pt = getInterpolatedPoint(points, pNormalized);
+              subPoints.push({ pt, p: pNormalized });
           }
-
           return subPoints;
       }
 
@@ -488,8 +505,7 @@
           ctx.restore();
       }
 
-      function drawTube(animatedPoints, progress) {
-          const currentPoints = getSubPath(animatedPoints, progress);
+      function drawTube(currentPoints) {
           if (currentPoints.length < 2) return;
 
           // Outer Blue Glow (lowered opacity: 0.18)
@@ -518,11 +534,9 @@
       function animate() {
           time += 0.015;
 
-          // Increment draw progress once until complete
-          if (drawProgress < 1) {
-              drawProgress += 0.008; // Adjust speed here
-              if (drawProgress > 1) drawProgress = 1;
-          }
+          // Continuously advance the crawling progress loop
+          loopProgress += 0.0015;
+          if (loopProgress >= 1) loopProgress -= 1;
 
           ctx.clearRect(0, 0, width, height);
 
@@ -531,29 +545,33 @@
           const floatOffset = Math.sin(time * 1.5) * 12;
 
           // Compute a dynamic visual scale matching the original background logo container scale
-          // (Originally w-[160vmax] h-[160vmax], rendering with viewBox of 200)
           const maxDimension = Math.max(width, height);
           const logoScale = (maxDimension * 1.6) / 200;
 
-          // 1. Animated outer logo loop
-          const animatedPoints1 = logoBase1.map((pt, index) => {
-              const wave = Math.sin(time * 2 - index * 0.06) * (1.2);
-              return {
-                  x: centerX + (pt.x + wave) * logoScale,
-                  y: centerY + (pt.y + floatOffset * 0.25) * logoScale
-              };
-          });
-          drawTube(animatedPoints1, drawProgress);
+          // Fraction of the logo drawn at any given time (e.g., 0.4 means 40% visible)
+          const windowFraction = 0.45;
 
-          // 2. Animated inner logo loop
-          const animatedPoints2 = logoBase2.map((pt, index) => {
-              const wave = Math.cos(time * 2 - index * 0.06) * (1.2);
+          // 1. Sliding window for outer logo loop
+          const window1 = getSlidingWindow(logoBase1, loopProgress, windowFraction);
+          const animatedPoints1 = window1.map(item => {
+              const wave = Math.sin(time * 2 - item.p * logoBase1.length * 0.06) * 1.2;
               return {
-                  x: centerX + (pt.x + wave) * logoScale,
-                  y: centerY + (pt.y + floatOffset * 0.25) * logoScale
+                  x: centerX + (item.pt.x + wave) * logoScale,
+                  y: centerY + (item.pt.y + floatOffset * 0.25) * logoScale
               };
           });
-          drawTube(animatedPoints2, drawProgress);
+          drawTube(animatedPoints1);
+
+          // 2. Sliding window for inner logo loop
+          const window2 = getSlidingWindow(logoBase2, loopProgress, windowFraction);
+          const animatedPoints2 = window2.map(item => {
+              const wave = Math.cos(time * 2 - item.p * logoBase2.length * 0.06) * 1.2;
+              return {
+                  x: centerX + (item.pt.x + wave) * logoScale,
+                  y: centerY + (item.pt.y + floatOffset * 0.25) * logoScale
+              };
+          });
+          drawTube(animatedPoints2);
 
           requestAnimationFrame(animate);
       }
