@@ -519,14 +519,14 @@
 
           // Swirling Accent Echo Lines
           const echoPoints1 = currentPoints.map((p, i) => ({
-              x: p.x + Math.sin(time * 3 + i) * 12,
-              y: p.y + Math.cos(time * 3 + i) * 8
+              x: p.x + Math.sin(time * 3 + i) * 4,
+              y: p.y + Math.cos(time * 3 + i) * 2
           }));
           drawRibbonPath(echoPoints1, 'rgba(255, 210, 190, 0.5)', 2, 5);
 
           const echoPoints2 = currentPoints.map((p, i) => ({
-              x: p.x - Math.cos(time * 2.5 + i) * 14,
-              y: p.y - Math.sin(time * 2.5 + i) * 10
+              x: p.x - Math.cos(time * 2.5 + i) * 5,
+              y: p.y - Math.sin(time * 2.5 + i) * 3
           }));
           drawRibbonPath(echoPoints2, 'rgba(130, 200, 255, 0.4)', 3, 10);
       }
@@ -554,10 +554,10 @@
           // 1. Sliding window for outer logo loop
           const window1 = getSlidingWindow(logoBase1, loopProgress, windowFraction);
           const animatedPoints1 = window1.map(item => {
-              const wave = Math.sin(time * 2 - item.p * logoBase1.length * 0.06) * 1.2;
+              const wave = 0;
               return {
                   x: centerX + (item.pt.x + wave) * logoScale,
-                  y: centerY + (item.pt.y + floatOffset * 0.25) * logoScale
+                  y: centerY + item.pt.y * logoScale + floatOffset * 0.5
               };
           });
           drawTube(animatedPoints1);
@@ -565,10 +565,10 @@
           // 2. Sliding window for inner logo loop
           const window2 = getSlidingWindow(logoBase2, loopProgress, windowFraction);
           const animatedPoints2 = window2.map(item => {
-              const wave = Math.cos(time * 2 - item.p * logoBase2.length * 0.06) * 1.2;
+              const wave = 0;
               return {
                   x: centerX + (item.pt.x + wave) * logoScale,
-                  y: centerY + (item.pt.y + floatOffset * 0.25) * logoScale
+                  y: centerY + item.pt.y * logoScale + floatOffset * 0.5
               };
           });
           drawTube(animatedPoints2);
