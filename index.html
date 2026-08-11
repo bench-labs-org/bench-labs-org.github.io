@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bench Labs — Home</title>
+  <meta property="og:title" content="Bench Labs">
+  <meta property="og:description" content="Bench Labs — Exploring artificial intelligence together.">
+  <meta property="og:image" content="https://bench-labs-org.github.io/static/banner.png">
+  <meta property="og:image:secure_url" content="https://bench-labs-org.github.io/static/banner.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:url" content="https://bench-labs-org.github.io/">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bench Labs">
+  <meta name="twitter:description" content="Bench Labs">
+  <meta name="twitter:image" content="https://bench-labs-org.github.io/static/banner.png">
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style>
+    /* Ensure clean typography and GPU rendering */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+    .hero-content {
+      position: relative;
+      z-index: 20;
+    }
+
+    /* ==========================================================================
+       ANIMATED VERTICAL HEADER LINES (section 2 / h2 blocks)
+       - base line draws itself in (scaleY) when scrolled into view
+       - a short dash travels down the line endlessly
+       ========================================================================== */
+    .vline-section .vline {
+      transform: scaleY(0);
+      transform-origin: top center;
+      opacity: 0;
+      transition:
+        transform 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 1.2s ease;
+    }
+    .vline-section.in-view .vline {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+    /* Respect reduced motion: just show the line statically */
+    @media (prefers-reduced-motion: reduce) {
+      .vline-section .vline {
+        transition: none;
+        transform: none;
+        opacity: 1;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="static/ui.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 antialiased min-h-screen flex flex-col">
+
+  <!-- Shared gradient for the vertical lines (transparent at both tips) -->
+  <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="vlineFade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="white" stop-opacity="0" />
+        <stop offset="15%"  stop-color="white" stop-opacity="1" />
+        <stop offset="85%"  stop-color="white" stop-opacity="1" />
+        <stop offset="100%" stop-color="white" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- LANDING SECTION -->
+  <!-- HERO -->
+  <section id="hero" class="relative h-[40vh] overflow-hidden bg-zinc-950">
+    <!-- Animated Drawing Tube Canvas -->
+    <canvas id="mainCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-[0.26]"></canvas>
+
+    <!-- WebGPU WGSL Homogenous Grain Canvas -->
+    <canvas id="hero-grain-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+    <!-- Content -->
+    <div class="relative z-20 flex h-full items-center justify-center px-6 hero-content">
+      <div class="text-center">
+        <!-- Crisp, bold, high-contrast header -->
+        <svg class="stroke-text" data-stroke-text data-draw-duration="3.0" data-fill-delay="0.35" data-stagger="0.05" data-ease="power2.out" role="img" aria-label="Bench Labs" viewBox="0 0 900 160" preserveAspectRatio="xMidYMid meet">
+          <text class="stroke-text__outline" x="450" y="112">Bench Labs</text>
+          <text class="stroke-text__fill" x="450" y="112">Bench Labs</text>
+        </svg>
+        <!-- Softer, normal-weight paragraph with distinct perceptual separation -->
+        <p class="mt-4 text-base md:text-lg font-normal tracking-normal text-zinc-400">
+          Exploring artificial intelligence together.
+        </p>
+        <p class="mt-6 text-sm tracking-normal text-zinc-500">
+          <a class="underline decoration-zinc-700 underline-offset-4 hover:text-zinc-300 transition-colors" href="https://huggingface.co/bench-labs" target="_blank" rel="noopener">Hugging Face</a>
+          <span class="mx-3 text-zinc-700">·</span>
+          <a class="underline decoration-zinc-700 underline-offset-4 hover:text-zinc-300 transition-colors" href="https://github.com/bench-labs-org" target="_blank" rel="noopener">GitHub</a>
+          <span class="mx-3 text-zinc-700">·</span>
+          <a class="underline decoration-zinc-700 underline-offset-4 hover:text-zinc-300 transition-colors" href="https://huggingface.co/spaces/bench-labs/BenchLabs-Leaderboard" target="_blank" rel="noopener">Leaderboard</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT SECTION -->
+  <section class="bg-zinc-950 py-16 md:py-24 flex-grow">
+    <div class="mx-auto max-w-4xl space-y-16 px-6 md:px-8">
+
+      <!-- ================================================================
+           ABOUT  — vertical animated line next to the h2 block
+           ================================================================ -->
+      <section class="vline-section relative pl-8 md:pl-10">
+        <!-- Vertical line: faint gradient track + traveling dash (with soft glow layer) -->
+        <svg class="vline absolute left-0 top-0 h-full w-[6px] overflow-visible"
+             viewBox="0 0 6 100" preserveAspectRatio="none" aria-hidden="true">
+          <!-- faint static track, transparent at the tips -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="url(#vlineFade)" stroke-width="1" vector-effect="non-scaling-stroke"
+                opacity="0.16" />
+          <!-- soft glow copy of the traveling dash -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="4" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.10"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.6s" begin="-0.8s" repeatCount="indefinite" />
+          </line>
+          <!-- crisp core of the traveling dash -->
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="1.5" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.45"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.6s" begin="-0.8s" repeatCount="indefinite" />
+          </line>
+        </svg>
+        <h2 class="mb-4 text-3xl font-bold tracking-tight text-zinc-100">About Us</h2>
+        <p class="leading-8 font-normal tracking-normal text-zinc-400">
+          Bench Labs is a nonprofit, open-source community exploring artificial intelligence with contributors and partner organizations. We build and share compact generative models, practical research tools, and lightweight benchmarks in the open, with a focus on accessible technology and permissive licensing.
+        </p>
+      </section>
+
+      <!-- ================================================================
+           EXPLORE & COLLABORATE (BENTO GRID) — vertical animated line next to the h2 block
+           ================================================================ -->
+      <section class="vline-section relative pl-8 md:pl-10">
+        <svg class="vline absolute left-0 top-0 h-full w-[6px] overflow-visible"
+             viewBox="0 0 6 100" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="url(#vlineFade)" stroke-width="1" vector-effect="non-scaling-stroke"
+                opacity="0.16" />
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="4" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.10"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.4s" begin="-2.6s" repeatCount="indefinite" />
+          </line>
+          <line x1="3" y1="0" x2="3" y2="100" pathLength="100" fill="none"
+                stroke="white" stroke-width="1.5" stroke-linecap="round"
+                vector-effect="non-scaling-stroke" opacity="0.45"
+                stroke-dasharray="14 86" stroke-dashoffset="0">
+            <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.4s" begin="-2.6s" repeatCount="indefinite" />
+          </line>
+        </svg>
+        <h2 class="mb-4 text-3xl font-bold tracking-tight text-zinc-100">Explore &amp; Collaborate</h2>
+        <p class="leading-8 font-normal tracking-normal text-zinc-400 mb-8">
+          We actively collaborate with open-source collectives, researchers, and builders. Explore our platforms, leaderboards, community spaces, and partnership details below.
+        </p>
+
+        <!-- Bento Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Live Model Playground -->
+          <a href="https://huggingface.co/BenchLabs" target="_blank" rel="noopener noreferrer"
+             class="ui-card ui-card-interactive group flex flex-col justify-between p-6 md:col-span-2">
+            <div>
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-100 transition-colors duration-300 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FF5722" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-zinc-100 group-hover:text-white mb-2">Live Model Playground</h3>
+              <p class="text-sm leading-6 text-zinc-400">
+                Test interactive open-weights generative models directly in browser.
+              </p>
+            </div>
+            <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
+              Launch demo
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
+            </span>
+          </a>
+
+          <!-- SlopFinder -->
+          <a href="slopfinder.html"
+             class="ui-card ui-card-interactive group flex flex-col justify-between p-6">
+            <div>
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-100 transition-colors duration-300 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#E91E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <line x1="11" y1="8" x2="11" y2="14"></line>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-zinc-100 group-hover:text-white mb-2">SlopFinder</h3>
+              <p class="text-sm leading-6 text-zinc-400">
+                Vote slop or not slop on real AI model outputs.
+              </p>
+            </div>
+            <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
+              Launch SlopFinder
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
+            </span>
+          </a>
+
+          <!-- Research Blog -->
+          <a href="https://huggingface.co/spaces/bench-labs/blog" target="_blank" rel="noopener noreferrer"
+             class="ui-card ui-card-interactive group flex flex-col justify-between p-6">
+            <div>
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-100 transition-colors duration-300 mb-4">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#00B0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-zinc-100 group-hover:text-white mb-2">Research Blog</h3>
+              <p class="text-sm leading-6 text-zinc-400">
+                Read deep architectural analysis and recipes.
+              </p>
+            </div>
+            <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
+              Read posts
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
+            </span>
+          </a>
+
+          <!-- GitHub Organization -->
+          <a href="https://github.com/bench-labs-org" target="_blank" rel="noopener noreferrer"
+             class="ui-card ui-card-interactive group flex flex-col justify-between p-6">
+            <div>
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-100 transition-colors duration-300 mb-4">
+                <svg viewBox="0 0 16 16" fill="#ffffff" class="w-5 h-5">
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-zinc-100 group-hover:text-white mb-2">GitHub Org</h3>
+              <p class="text-sm leading-6 text-zinc-400">
+                Explore our official model configuration repositories.
+              </p>
+            </div>
+            <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
+              View repos
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
+            </span>
+          </a>
+
+          <!-- Benchmarks & Leaderboard -->
+          <a href="https://huggingface.co/spaces/bench-labs/BenchLabs-Leaderboard" target="_blank" rel="noopener noreferrer"
+             class="ui-card ui-card-interactive group flex flex-col justify-between p-6">
+            <div>
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-100 transition-colors duration-300 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FFD700" class="w-5 h-5">
+                  <path d="M18 2H6v3H3v2a5 5 0 0 0 5 5h.1A6 6 0 0 0 11 15.9V20H8v2h8v-2h-3v-4.1A6 6 0 0 0 15.9 12H16a5 5 0 0 0 5-5V5h-3V2Zm-2 8a4 4 0 0 1-4 4 4 4 0 0 1-4-4V4h8v6ZM5 7V7h1v3A3 3 0 0 1 5 7Zm14 0a3 3 0 0 1-1 3V7h1Z"/>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-zinc-100 group-hover:text-white mb-2">Leaderboard</h3>
+              <p class="text-sm leading-6 text-zinc-400">
+                Compare tiny generative model performance metrics.
+              </p>
+            </div>
+            <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
+              Open benchmarks
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
+            </span>
+          </a>
+
+          <!-- Discord Community -->
+          <a href="https://discord.gg/zRzbNJBVQQ" target="_blank" rel="noopener noreferrer"
+             class="ui-card ui-card-interactive group flex flex-col justify-between p-6">
+            <div>
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-100 transition-colors duration-300 mb-4">
+                <svg viewBox="0 0 127.14 96.36" fill="#5865F2" class="w-5 h-5">
+                  <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.73-10.93,68.6,68.6,0,0,1-10.64-5.12c.91-.67,1.81-1.37,2.65-2.11A75.22,75.22,0,0,0,96.37,78.2c.84.74,1.74,1.44,2.65,2.11a68.52,68.52,0,0,1-10.64,5.12,74.74,74.74,0,0,0,6.73,10.93,105.54,105.54,0,0,0,31.05-18.83C130.1,50.22,123.23,27.47,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.87,46,53.87,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.11,46,96.11,53,91,65.69,84.69,65.69Z"/>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-zinc-100 group-hover:text-white mb-2">Discord Chat</h3>
+              <p class="text-sm leading-6 text-zinc-400">
+                Join our chat to connect daily.
+              </p>
+            </div>
+            <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
+              Join Discord
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">↗</span>
+            </span>
+          </a>
+
+          <!-- View Partner Details & Logos -->
+          <a href="partnerships.html"
+             class="ui-card ui-card-interactive group flex flex-col justify-between p-6">
+            <div>
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-100 transition-colors duration-300 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-zinc-100 group-hover:text-white mb-2">Our Partners</h3>
+              <p class="text-sm leading-6 text-zinc-400">
+                Meet active collectives collaborating with us.
+              </p>
+            </div>
+            <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
+              View details &amp; logos
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
+            </span>
+          </a>
+
+          <!-- Why partner with us -->
+          <a href="lets-partner.html"
+             class="ui-card ui-card-interactive group flex flex-col justify-between p-6">
+            <div>
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-100 transition-colors duration-300 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                  <rect x="2" y="3" width="20" height="18" rx="3" ry="3"/>
+                  <line x1="2" y1="8" x2="22" y2="8"/>
+                  <circle cx="5.5" cy="5.5" r="0.5" fill="#00C853"/>
+                  <circle cx="8" cy="5.5" r="0.5" fill="#00C853"/>
+                  <circle cx="10.5" cy="5.5" r="0.5" fill="#00C853"/>
+                  <line x1="6" y1="12" x2="18" y2="12"/>
+                  <line x1="6" y1="16" x2="14" y2="16"/>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-zinc-100 group-hover:text-white mb-2">Why Partner With Us?</h3>
+              <p class="text-sm leading-6 text-zinc-400">
+                Explore our core values: open, peaceful, sustainable.
+              </p>
+            </div>
+            <span class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-zinc-300 group-hover:text-white">
+              Learn about partnerships
+              <span class="text-zinc-500 group-hover:translate-x-1 transition-transform">→</span>
+            </span>
+          </a>
+
+        </div>
+      </section>
+
+    </div>
+  </section>
+
+  <!-- Navigation JS -->
+  <script src="static/navigation.js"></script>
+  <script src="static/stroke-text.js"></script>
+
+  <!-- SCROLL REVEAL FOR THE VERTICAL HEADER LINES                              -->
+  <!-- ========================================================================= -->
+  <!-- ========================================================================= -->
+  <script>
+    (function () {
+      const sections = document.querySelectorAll('.vline-section');
+      if (!('IntersectionObserver' in window)) {
+        sections.forEach(s => s.classList.add('in-view'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.25 });
+      sections.forEach(s => io.observe(s));
+    })();
+  </script>
+
+  <!-- Shared High-Performance Background Scripts -->
+  <script src="static/grain-bg.js"></script>
+  <script src="static/lissajous-bg.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="2;url=https://discord.gg/zRzbNJBVQQ" />
+  <title>Bench Labs — Joining Discord...</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+  </style>
+  <link rel="stylesheet" href="static/ui.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 antialiased min-h-screen flex flex-col justify-between">
+  <!-- Animated 3D Lissajous Drawing Tube & Slowed Grain Background -->
+  <canvas id="mainCanvas" class="fixed inset-0 w-full h-[50vh] pointer-events-none z-0 opacity-[0.24]"></canvas>
+  <canvas id="hero-grain-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+
+  <!-- Header is dynamically loaded, but let's have a clean centering main -->
+  <main class="flex-grow flex flex-col items-center justify-center p-6 text-center">
+    <div class="max-w-md mx-auto space-y-6">
+      <!-- Pulsing Discord Logo -->
+      <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-zinc-900 border border-zinc-800 animate-pulse text-[#5865F2]">
+        <svg class="h-10 w-10 fill-current" viewBox="0 0 127.14 96.36">
+          <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.73-10.93,68.6,68.6,0,0,1-10.64-5.12c.91-.67,1.81-1.37,2.65-2.11A75.22,75.22,0,0,0,96.37,78.2c.84.74,1.74,1.44,2.65,2.11a68.52,68.52,0,0,1-10.64,5.12,74.74,74.74,0,0,0,6.73,10.93,105.54,105.54,0,0,0,31.05-18.83C130.1,50.22,123.23,27.47,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.87,46,53.87,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.11,46,96.11,53,91,65.69,84.69,65.69Z"/>
+        </svg>
+      </div>
+
+      <div class="space-y-2">
+        <h1 class="text-2xl font-bold tracking-tight text-zinc-100">Connecting to Discord...</h1>
+        <p class="text-sm text-zinc-400">
+          We are redirecting you to the Bench Labs Discord server.
+        </p>
+      </div>
+
+      <div class="pt-4">
+        <a href="https://discord.gg/zRzbNJBVQQ" class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#5865F2] hover:bg-[#4752C4] text-sm font-semibold text-white px-5 py-2.5 transition-colors shadow-lg">
+          Join Server Directly
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Navigation JS -->
+  <script src="static/navigation.js"></script>
+
+  <script src="static/grain-bg.js"></script>
+  <script src="static/lissajous-bg.js"></script>
+</body>
+</html>

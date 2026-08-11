@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bench Labs — Text-to-Image Models</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+  </style>
+  <link rel="stylesheet" href="static/ui.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 antialiased min-h-screen flex flex-col">
+  <!-- Animated 3D Lissajous Drawing Tube & Slowed Grain Background -->
+  <canvas id="mainCanvas" class="fixed inset-0 w-full h-[50vh] pointer-events-none z-0 opacity-[0.24]"></canvas>
+  <canvas id="hero-grain-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+
+  <!-- Main container -->
+  <main class="flex-grow py-16 md:py-24 max-w-4xl mx-auto px-6 md:px-8 w-full">
+
+    <!-- Breadcrumb -->
+    <div class="mb-6">
+      <a href="models.html" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
+        <span class="text-xs">←</span> Back to Categories
+      </a>
+    </div>
+
+    <div class="mb-12">
+      <h1 class="text-3xl font-bold tracking-tight text-zinc-100 md:text-4xl">Text-to-Image Models</h1>
+      <p class="mt-3 text-sm md:text-base text-zinc-400">
+        All generative text-to-image models published by Bench Labs, dynamically updated in real-time from Hugging Face.
+      </p>
+    </div>
+
+    <!-- Status / Loading indicator -->
+    <div id="loading-state" class="flex flex-col items-center justify-center py-16 space-y-3">
+      <div class="h-6 w-6 animate-spin rounded-full border-2 border-zinc-700 border-t-zinc-300"></div>
+      <p class="text-sm text-zinc-500">Fetching latest model data...</p>
+    </div>
+
+    <!-- Grid Container for dynamic models -->
+    <div id="models-grid" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Dynamic cards injected here -->
+    </div>
+
+    <!-- Error state fallback fallback (always rendered/available if HF hub is down or rate limited) -->
+    <div id="error-fallback" class="hidden rounded-xl border border-red-900/40 bg-red-950/10 p-4 mb-6">
+      <p class="text-sm text-red-400">
+        Failed to fetch real-time stats from Hugging Face. Displaying archived model list below.
+      </p>
+    </div>
+
+  </main>
+
+  <!-- Navigation JS -->
+  <script src="static/navigation.js"></script>
+
+  <!-- Fetch logic script -->
+  <script>
+    (async function() {
+      const grid = document.getElementById('models-grid');
+      const loader = document.getElementById('loading-state');
+      const errorFallback = document.getElementById('error-fallback');
+
+      // Robust fallback dataset
+      const staticImageModels = [
+        { id: "bench-labs/PixelModel-v6", description: "Multi-modal diffusion transformer", likes: 13, downloads: 0, params: "0.2B · newest" },
+        { id: "bench-labs/PixelModel-v5", description: "Rectified-flow diffusion transformer", likes: 30, downloads: 5915, params: "0.2B" },
+        { id: "bench-labs/PixelModel-v4", description: "Latent-diffusion DiT architecture", likes: 9, downloads: 4493, params: "40.1M" },
+        { id: "bench-labs/PixelModel-v3", description: "SiREN / CPPN architecture", likes: 8, downloads: 4495, params: "919k" },
+        { id: "bench-labs/PixelModel-v2", description: "Tiny text-to-image generator", likes: 10, downloads: 4353, params: "200k" },
+        { id: "bench-labs/pixelmodel-v1", description: "Text-to-Image diffusion", likes: 10, downloads: 4092, params: "23.7k" },
+        { id: "bench-labs/pixelmodel", description: "Original text-to-image model", likes: 6, downloads: 4286, params: "203k · original" }
+      ];
+
+      function formatNumber(num) {
+        if (!num) return '0';
+        if (num >= 1000) {
+          return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+        }
+        return num.toString();
+      }
+
+      function getParams(modelId) {
+        const found = staticImageModels.find(m => m.id.toLowerCase() === modelId.toLowerCase());
+        return found ? found.params : "tiny";
+      }
+
+      function renderModels(list) {
+        loader.classList.add('hidden');
+        grid.classList.remove('hidden');
+        grid.innerHTML = list.map(model => {
+          const params = getParams(model.id) || "tiny";
+          const prettyDownloads = formatNumber(model.downloads);
+          const name = model.id.split('/').pop();
+
+          return `
+            <a href="https://huggingface.co/${model.id}" target="_blank" rel="noopener"
+               class="group relative flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/25 p-5 transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900/50">
+              <div>
+                <div class="flex items-baseline justify-between gap-2 mb-2">
+                  <span class="font-bold text-zinc-100 group-hover:text-white group-hover:underline decoration-zinc-500 underline-offset-4">${name}</span>
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/50">${params}</span>
+                </div>
+                <p class="text-xs text-zinc-400 mb-6 leading-relaxed">
+                  ${model.tags?.includes("rectified-flow") ? "Rectified flow" : "Diffusion"} pipeline. Safetensors weights under MIT license.
+                </p>
+              </div>
+              <div class="flex items-center gap-4 text-xs text-zinc-500">
+                <span class="flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  ${prettyDownloads} downloads
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5 text-red-900/80 fill-current" viewBox="0 0 20 20">
+                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                  </svg>
+                  ${model.likes || 0} likes
+                </span>
+              </div>
+            </a>
+          `;
+        }).join('');
+      }
+
+      try {
+        const response = await fetch('https://huggingface.co/api/models?author=bench-labs');
+        if (!response.ok) throw new Error('Network error fetching from HF');
+        const data = await response.json();
+
+        // Filter for image generation tags or pipeline tags
+        const imageModels = data.filter(model => {
+          const isT2I = model.pipeline_tag === 'text-to-image' || model.tags?.includes('text-to-image') || model.tags?.includes('image');
+          // Exclude any 3d model
+          const is3D = model.pipeline_tag === 'text-to-3d' || model.tags?.includes('3d') || model.id.toLowerCase().includes('voxel');
+          return isT2I && !is3D;
+        });
+
+        if (imageModels.length === 0) {
+          throw new Error('No models matching criteria');
+        }
+
+        // Sort by id / name descending so newer versions are top
+        imageModels.sort((a, b) => b.id.localeCompare(a.id));
+        renderModels(imageModels);
+
+      } catch (err) {
+        console.warn('Hugging Face fetch failed, using fallback static data:', err);
+        errorFallback.classList.remove('hidden');
+        renderModels(staticImageModels);
+      }
+    })();
+  </script>
+
+  <script src="static/grain-bg.js"></script>
+  <script src="static/lissajous-bg.js"></script>
+</body>
+</html>

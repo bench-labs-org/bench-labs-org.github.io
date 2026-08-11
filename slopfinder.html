@@ -1,0 +1,1139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bench Labs — Slopfinder</title>
+  <meta property="og:title" content="Slopfinder — Bench Labs">
+<meta property="og:description" content="Human judgments for AI output. Slide to rate: slop or not slop.">
+<meta property="og:type" content="website">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Slopfinder — Bench Labs">
+<meta name="twitter:description" content="Human judgments for AI output. Slide to rate: slop or not slop.">
+
+<meta name="description" content="Human judgments for AI output — vote slop or not slop on real model outputs.">
+
+  <!-- Tailwind CSS -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #171717;
+      --panel: #1d1d1d;
+      --panel2: #222222;
+      --text: #f3f5f7;
+      --muted: #a1a1aa;
+      --border: rgba(255, 255, 255, 0.08);
+      --green: #79e6b2;
+      --red: #ff8585;
+      --slider: 50%;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .prompt-label,
+    .response-label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .conversation {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      background: var(--panel);
+    }
+
+    .message {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .message:last-child {
+      border-bottom: 0;
+    }
+
+    .message .role {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .message.user {
+      background: rgba(255,255,255,.018);
+    }
+
+    .message.assistant {
+      background: rgba(121,230,178,.025);
+    }
+
+    .output {
+      margin-top: 30px;
+    }
+
+    .response {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--panel2);
+      padding: 24px;
+      min-height: 180px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.65;
+      font-size: 17px;
+      transition:
+        transform .08s linear,
+        opacity .15s ease;
+    }
+
+    .response.moving {
+      transform:
+        translateX(
+          calc(
+            (var(--slider) - 50%) * .12
+          )
+        );
+    }
+
+    .judge {
+      margin-top: 34px;
+    }
+
+    .labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 11px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .labels .bad {
+      color: var(--red);
+    }
+
+    .labels .good {
+      color: var(--green);
+    }
+
+    .slider-area {
+      position: relative;
+      height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14px;
+  border-radius: 999px;
+  background: #333;
+  opacity: .9;
+  overflow: hidden;
+}
+
+.track::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* left edge = min(50%, slider), right edge = max(50%, slider) */
+  left: min(var(--slider), 50%);
+  right: min(calc(100% - var(--slider)), 50%);
+  background: var(--fill-color, var(--red));
+}
+
+    input[type="range"] {
+      position: absolute;
+      width: 100%;
+      height: 48px;
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: grab;
+    }
+
+    input[type="range"]:active {
+      cursor: grabbing;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 14px;
+      background: transparent;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 14px;
+      background: transparent;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #111;
+      box-shadow:
+        0 4px 20px rgba(0,0,0,.5);
+      margin-top: -9px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #111;
+      box-shadow:
+        0 4px 20px rgba(0,0,0,.5);
+    }
+
+    .instruction {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .metadata {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 34px;
+      transform:
+        translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+
+      padding: 11px 16px;
+      border-radius: 999px;
+
+      background: #151b18;
+      border: 1px solid rgba(121,230,178,.3);
+
+      color: #dffff0;
+      font-size: 14px;
+      font-weight: 600;
+
+      transition:
+        opacity .18s ease,
+        transform .18s ease;
+
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform:
+        translate(-50%, 0);
+    }
+
+    .error {
+      padding: 20px;
+      border: 1px solid rgba(255,133,133,.25);
+      border-radius: 18px;
+      color: #ffcaca;
+      background: rgba(255,80,80,.05);
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 700px) {
+      .response {
+        padding: 18px;
+        font-size: 15px;
+      }
+
+      .message {
+        padding: 15px;
+      }
+    }
+    .mode-btn {
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  border: none;
+  transition: background .12s ease, color .12s ease;
+}
+.mode-btn.active {
+  background: rgba(121,230,178,.12);
+  color: var(--green);
+}
+
+.custom-turn {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.custom-turn:last-child { border-bottom: 0; }
+
+.custom-turn select {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  flex-shrink: 0;
+}
+
+.custom-turn textarea {
+  flex: 1;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  resize: vertical;
+  min-height: 44px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.custom-turn .remove-turn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px;
+  flex-shrink: 0;
+}
+.custom-turn .remove-turn:hover { color: var(--red); }
+
+.custom-controls {
+  padding: 12px 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.custom-controls button {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.custom-controls button:hover { border-color: rgba(255,255,255,.2); }
+
+.custom-controls button.primary {
+  background: rgba(121,230,178,.12);
+  border-color: rgba(121,230,178,.3);
+  color: var(--green);
+}
+
+:not(header):not(nav).hidden { display: none !important; }
+  </style>
+  <link rel="stylesheet" href="static/ui.css">
+</head>
+
+<body class="bg-[#171717] text-zinc-100 antialiased min-h-screen flex flex-col">
+  <!-- Animated 3D Lissajous Drawing Tube & Slowed Grain Background -->
+  <canvas id="mainCanvas" class="fixed inset-0 w-full h-[50vh] pointer-events-none z-0 opacity-[0.24]"></canvas>
+  <canvas id="hero-grain-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+
+  <!-- Main container matching Bench Labs standard -->
+  <main class="flex-grow py-16 md:py-24 max-w-4xl mx-auto px-6 md:px-8 w-full">
+
+    <div class="mb-12 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between border-b border-zinc-800 pb-6 w-full">
+      <div>
+        <h1 class="text-4xl font-bold tracking-tight text-zinc-100 md:text-5xl">Slopfinder</h1>
+        <p class="mt-2 text-base text-zinc-400">
+          Human judgments for AI output
+        </p>
+        <div class="mt-3">
+          <a class="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:text-white px-3 py-1.5 rounded-full transition-colors" href="https://huggingface.co/datasets/bench-labs/slop-classification" target="_blank" rel="noopener">
+            <span>📊 View Slop Classification Dataset on Hugging Face</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-xs text-zinc-400 font-medium" id="status">
+        Loading…
+      </div>
+    </div>
+    <div class="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1 text-xs font-medium" id="modeToggle">
+  <button type="button" data-mode="random" class="mode-btn px-3 py-1.5 rounded-md">Random</button>
+  <button type="button" data-mode="custom" class="mode-btn px-3 py-1.5 rounded-md">Custom</button>
+</div>
+
+    <div>
+     <div id="randomMode">
+  <div class="prompt-label">Conversation</div>
+  <div class="conversation" id="conversation">
+    <div class="message">Loading…</div>
+  </div>
+
+  <section class="output">
+    <div class="response-label">Assistant output</div>
+    <div class="response" id="response">Loading…</div>
+  </section>
+</div>
+
+<div id="customMode" class="hidden">
+  <div class="prompt-label">Your conversation</div>
+
+  <div class="conversation" id="customTurns"></div>
+
+  <div class="custom-controls">
+    <button type="button" id="addTurn">+ Add turn</button>
+    <button type="button" id="scoreCustom" class="primary">Score this</button>
+  </div>
+</div>
+
+      </section>
+
+
+      <section class="judge">
+
+        <div class="labels">
+          <span class="bad">
+            SLOP
+          </span>
+
+          <span class="good">
+            NOT SLOP
+          </span>
+        </div>
+
+
+        <div class="slider-area">
+
+          <div
+            class="track"
+            id="track"
+          ></div>
+
+          <input
+            id="slider"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+            aria-label="How much slop?"
+          >
+
+        </div>
+
+
+        <div class="instruction">
+          Drag anywhere along the line, then release.
+        </div>
+
+      </section>
+
+
+      <div class="metadata">
+        <span id="source">
+          Source loading…
+        </span>
+
+        <span id="row">
+          —
+        </span>
+      </div>
+    </div>
+
+  </main>
+
+
+  <div
+    class="toast"
+    id="toast"
+  >
+    ✓ Vote sent
+  </div>
+
+
+  <!-- Script logic kept perfectly intact -->
+  <script>
+  /* ===== Custom mode ===== */
+
+const randomModeEl = document.getElementById("randomMode");
+const customModeEl = document.getElementById("customMode");
+const modeToggle = document.getElementById("modeToggle");
+const customTurns = document.getElementById("customTurns");
+const addTurnBtn = document.getElementById("addTurn");
+const scoreCustomBtn = document.getElementById("scoreCustom");
+
+let mode = "random"; // "random" | "custom"
+
+function setMode(next) {
+  mode = next;
+
+  modeToggle.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === next);
+  });
+
+  randomModeEl.classList.toggle("hidden", next !== "random");
+  customModeEl.classList.toggle("hidden", next !== "custom");
+
+  // reset response panel + slider for the new mode
+  slider.value = 50;
+  updateSlider();
+  status.textContent = next === "custom" ? "Build a conversation, then score it." : "Ready.";
+  source.textContent = next === "custom" ? "custom" : (currentSample?.source_dataset || "");
+  row.textContent = next === "custom" ? "—" : (currentSample?.source_row_id || "—");
+
+  if (next === "custom" && customTurns.children.length === 0) {
+    addCustomTurn("user");
+    addCustomTurn("assistant");
+  }
+}
+
+modeToggle.addEventListener("click", (e) => {
+  const btn = e.target.closest(".mode-btn");
+  if (!btn) return;
+  setMode(btn.dataset.mode);
+});
+
+function addCustomTurn(role = "user", content = "") {
+  const div = document.createElement("div");
+  div.className = "custom-turn";
+
+  const select = document.createElement("select");
+  ["user", "assistant"].forEach(r => {
+    const opt = document.createElement("option");
+    opt.value = r;
+    opt.textContent = r;
+    if (r === role) opt.selected = true;
+    select.appendChild(opt);
+  });
+
+  const textarea = document.createElement("textarea");
+  textarea.placeholder = role === "user" ? "User message…" : "Assistant response…";
+  textarea.value = content;
+
+  const removeBtn = document.createElement("button");
+  removeBtn.className = "remove-turn";
+  removeBtn.type = "button";
+  removeBtn.innerHTML = "&times;";
+  removeBtn.addEventListener("click", () => {
+    div.remove();
+  });
+
+  div.appendChild(select);
+  div.appendChild(textarea);
+  div.appendChild(removeBtn);
+  customTurns.appendChild(div);
+
+  textarea.focus();
+}
+
+addTurnBtn.addEventListener("click", () => {
+  // Alternate default role based on last turn, for convenience
+  const last = customTurns.lastElementChild;
+  const lastRole = last?.querySelector("select")?.value;
+  addCustomTurn(lastRole === "user" ? "assistant" : "user");
+});
+
+function collectCustomTurns() {
+  return Array.from(customTurns.children).map(div => ({
+    role: div.querySelector("select").value,
+    content: div.querySelector("textarea").value.trim()
+  })).filter(t => t.content.length > 0);
+}
+
+function assistantOnlyDisplay(text) {
+  const full = String(text || "").trim();
+  if (!full) return "";
+
+  const matches = [...full.matchAll(/(?:^|\n)Assistant:\s*([\s\S]*?)(?=\n(?:User|Human|Assistant|System):|$)/gi)];
+  if (matches.length > 0) {
+    return matches[matches.length - 1][1].trim();
+  }
+
+  return full;
+}
+
+async function scoreCustomConversation() {
+  const turns = collectCustomTurns();
+
+  if (turns.length === 0) {
+    alert("Add at least one turn with content before scoring.");
+    return;
+  }
+
+  const lastAssistant = [...turns].reverse().find(t => t.role === "assistant");
+
+  if (!lastAssistant) {
+    alert("Add at least one assistant turn to score.");
+    return;
+  }
+
+  // Show it in the same response panel styling for consistency
+  currentSample = {
+  prompt: turns.slice(0, turns.lastIndexOf(lastAssistant)),
+  content: lastAssistant.content,
+  source_dataset: "custom",       // or match a real dataset name if you want zero distinction
+  source_row_id: `custom-${crypto.randomUUID()}`
+};
+
+  // Re-use the existing response element by temporarily revealing it
+  randomModeEl.classList.remove("hidden");
+  customModeEl.classList.add("hidden");
+
+  renderConversation(currentSample.prompt);
+  response.textContent = assistantOnlyDisplay(currentSample.content);
+  source.textContent = "custom";
+  row.textContent = "—";
+
+  slider.value = 50;
+  updateSlider();
+  status.textContent = "Slide to score this custom output.";
+
+  // Add a "back to editing" affordance via the mode toggle staying on "custom" visually
+  modeToggle.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === "custom");
+  });
+}
+
+scoreCustomBtn.addEventListener("click", scoreCustomConversation);
+    /*
+     * Your Worker
+     */
+
+    const API =
+      "https://slopfinder-api.mmmmmm505090.workers.dev";
+
+
+    /*
+     * Anonymous local session.
+     *
+     * No login.
+     * No account.
+     * No cookies.
+     */
+
+    function getSessionId() {
+
+      let id =
+        localStorage.getItem(
+          "slopfinder_session"
+        );
+
+      if (!id) {
+
+        id =
+          crypto.randomUUID();
+
+        localStorage.setItem(
+          "slopfinder_session",
+          id
+        );
+      }
+
+      return id;
+    }
+
+
+    const sessionId =
+      getSessionId();
+
+
+    const conversation =
+      document.getElementById(
+        "conversation"
+      );
+
+    const response =
+      document.getElementById(
+        "response"
+      );
+
+    const slider =
+      document.getElementById(
+        "slider"
+      );
+
+    const track =
+      document.getElementById(
+        "track"
+      );
+
+    const source =
+      document.getElementById(
+        "source"
+      );
+
+    const row =
+      document.getElementById(
+        "row"
+      );
+
+    const status =
+      document.getElementById(
+        "status"
+      );
+
+    const toast =
+      document.getElementById(
+        "toast"
+      );
+
+
+    let currentSample =
+      null;
+
+    let sending =
+      false;
+
+
+    /*
+     * Update slider appearance
+     */
+
+    function updateSlider() {
+
+      const value =
+        Number(slider.value);
+
+      const percent =
+        `${value}%`;
+
+      document.documentElement.style
+        .setProperty(
+          "--slider",
+          percent
+        );
+
+      response.classList.add(
+        "moving"
+      );
+
+      /*
+       * Makes the response visually
+       * drift toward the side being chosen.
+       */
+
+      const distance =
+        (value - 50) * 0.12;
+
+      response.style.transform =
+        `translateX(${distance}px)`;
+    }
+
+
+    /*
+     * Render conversation
+     */
+
+    function renderConversation(
+      messages
+    ) {
+
+      conversation.innerHTML = "";
+
+      if (
+        !Array.isArray(messages) ||
+        messages.length === 0
+      ) {
+
+        conversation.innerHTML =
+          `<div class="message">
+            No conversation context.
+          </div>`;
+
+        return;
+      }
+
+
+      for (
+        const message of messages
+      ) {
+
+        const div =
+          document.createElement(
+            "div"
+          );
+
+        const role =
+          String(
+            message.role ||
+            "message"
+          ).toLowerCase();
+
+        div.className =
+          `message ${role}`;
+
+
+        const roleDiv =
+          document.createElement(
+            "div"
+          );
+
+        roleDiv.className =
+          "role";
+
+        roleDiv.textContent =
+          role;
+
+
+        const contentDiv =
+          document.createElement(
+            "div"
+          );
+
+        contentDiv.textContent =
+          message.content ||
+          "";
+
+
+        div.appendChild(
+          roleDiv
+        );
+
+        div.appendChild(
+          contentDiv
+        );
+
+        conversation.appendChild(
+          div
+        );
+      }
+    }
+
+
+    /*
+     * Load next sample
+     */
+
+    async function loadNext() {
+
+      status.textContent =
+        "Fetching…";
+
+
+      try {
+
+        const res =
+          await fetch(
+            `${API}/api/next`
+          );
+
+
+        const data =
+          await res.json();
+
+
+        if (!res.ok) {
+
+          throw new Error(
+            data.error ||
+            `HTTP ${res.status}`
+          );
+        }
+
+
+        currentSample =
+          data;
+
+
+        renderConversation(
+          data.prompt
+        );
+
+
+        response.textContent =
+          assistantOnlyDisplay(
+            data.content || ""
+          );
+
+
+        source.textContent =
+          data.source_dataset ||
+          "";
+
+
+        row.textContent =
+          data.source_row_id ||
+          "";
+
+
+        slider.value =
+          50;
+
+
+        updateSlider();
+
+
+        status.textContent =
+          "Ready.";
+
+      } catch (error) {
+
+        status.textContent =
+          "Error";
+
+        conversation.innerHTML = "";
+
+        const errorBox =
+          document.createElement(
+            "div"
+          );
+
+        errorBox.className =
+          "error";
+
+        errorBox.textContent =
+          error instanceof Error
+            ? error.message
+            : String(error);
+
+        conversation.appendChild(
+          errorBox
+        );
+
+        response.textContent =
+          "Could not load sample.";
+      }
+    }
+
+
+    /*
+     * Send vote
+     */
+
+    async function sendVote() {
+
+      if (
+        !currentSample ||
+        sending
+      ) {
+        return;
+      }
+
+
+      sending =
+        true;
+
+
+      slider.disabled =
+        true;
+
+
+      status.textContent =
+        "Saving…";
+
+
+      /*
+       * Convert:
+       *
+       * 0   → -1
+       * 50  →  0
+       * 100 → +1
+       */
+
+      const value =
+        (Number(slider.value) - 50) / 50;
+
+
+      try {
+
+        const res =
+          await fetch(
+            `${API}/api/vote`,
+            {
+              method:
+                "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                "X-Session-ID":
+                  sessionId
+              },
+
+              body: JSON.stringify({
+  content: currentSample.content,
+  prompt: currentSample.prompt || [],
+  value,
+  source_dataset: currentSample.source_dataset,
+  source_row_id: currentSample.source_row_id
+})
+            }
+          );
+
+
+        const data =
+          await res.json();
+
+
+        if (!res.ok) {
+
+          throw new Error(
+            data.error ||
+            `HTTP ${res.status}`
+          );
+        }
+
+
+        /*
+         * Vote sent
+         */
+
+        toast.classList.add("show");
+
+status.textContent = "Vote sent ✓";
+
+/*
+ * Wait exactly 1 second
+ * before pulling another.
+ */
+
+await new Promise(
+  resolve =>
+    setTimeout(
+      resolve,
+      1000
+    )
+);
+
+toast.classList.remove("show");
+await loadNext();
+
+
+      } catch (error) {
+
+        status.textContent =
+          "Vote failed";
+
+        alert(
+          error instanceof Error
+            ? error.message
+            : String(error)
+        );
+
+      } finally {
+
+        sending =
+          false;
+
+        slider.disabled =
+          false;
+      }
+    }
+
+
+    /*
+     * Slider movement
+     */
+
+    slider.addEventListener(
+      "input",
+      updateSlider
+    );
+
+
+    /*
+     * Release = vote
+     */
+
+    slider.addEventListener(
+      "pointerup",
+      sendVote
+    );
+
+
+    /*
+     * Keyboard accessibility
+     */
+
+    slider.addEventListener(
+      "change",
+      () => {
+
+        if (
+          document.activeElement ===
+          slider
+        ) {
+          sendVote();
+        }
+
+      }
+    );
+
+
+    /*
+     * Start
+     */
+     function updateSlider() {
+  const value = Number(slider.value);
+  const percent = `${value}%`;
+
+  document.documentElement.style.setProperty("--slider", percent);
+  document.documentElement.style.setProperty(
+    "--fill-color",
+    value >= 50 ? "var(--green)" : "var(--red)"
+  );
+
+  response.classList.add("moving");
+
+  const distance = (value - 50) * 0.12;
+  response.style.transform = `translateX(${distance}px)`;
+}
+    modeToggle.querySelector('[data-mode="random"]').classList.add("active");
+
+    updateSlider();
+
+    loadNext();
+  </script>
+
+  <!-- Navigation JS -->
+  <script src="static/navigation.js"></script>
+
+  <script src="static/grain-bg.js"></script>
+  <script src="static/lissajous-bg.js"></script>
+</body>
+</html>
